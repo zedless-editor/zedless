@@ -1,3 +1,4 @@
+# TODO(zedless-packaging): Finish updating for Zedless
 name: zed
 title: Zed
 base: core24
@@ -54,6 +55,6 @@ parts:
 apps:
   zed:
     command: usr/bin/zed
-    common-id: dev.zed.Zed
+    common-id: org.zedless.Zedless
     environment:
       ZED_BUNDLE_TYPE: snap

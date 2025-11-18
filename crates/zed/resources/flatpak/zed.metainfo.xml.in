@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO(zedless-packaging): Finish updating for Zedless -->
 <component type="desktop-application">
     <id>$APP_ID</id>
     <metadata_license>MIT</metadata_license>
@@ -6,7 +7,7 @@
 
     <name>$APP_NAME</name>
     <summary>High-performance, multiplayer code editor</summary>
-    <developer id="dev.zed">
+    <developer id="org.zedless">
         <name translate="no">Zed Industries, Inc.</name>
     </developer>
     <description>
