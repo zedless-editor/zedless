@@ -33,7 +33,6 @@
         })).env; # exfil `env`; it's not in drvAttrs
     in
     (removeAttrs baseEnvs [
-      "LK_CUSTOM_WEBRTC" # download the staticlib during the build as usual
       "CARGO_PROFILE" # let you specify the profile
       "TARGET_DIR"
     ])

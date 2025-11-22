@@ -2,7 +2,7 @@ use crate::{
     ItemNavHistory, WorkspaceId,
     item::{Item, ItemEvent},
 };
-use call::{RemoteVideoTrack, RemoteVideoTrackView, Room};
+use call::{RemoteVideoTrackView, Room};
 use client::{User, proto::PeerId};
 use gpui::{
     AppContext as _, Entity, EventEmitter, FocusHandle, Focusable, InteractiveElement,
@@ -25,25 +25,22 @@ pub struct SharedScreen {
 
 impl SharedScreen {
     pub fn new(
-        track: RemoteVideoTrack,
+        track: u8, // TODO(zedless-collab): Re-implement track type or delete parameter
         peer_id: PeerId,
         user: Arc<User>,
         room: Entity<Room>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
-        let my_sid = track.sid();
         cx.subscribe(&room, move |_, _, ev, cx| match ev {
-            call::room::Event::RemoteVideoTrackUnsubscribed { sid } => {
-                if sid == &my_sid {
-                    cx.emit(Event::Close)
-                }
+            call::room::Event::RemoteVideoTrackUnsubscribed { track_id } => {
+                // TODO(zedless-collab): Emit close event if `track_id` matches `track` (impl TBD)
             }
             _ => {}
         })
         .detach();
 
-        let view = cx.new(|cx| RemoteVideoTrackView::new(track.clone(), window, cx));
+        let view = cx.new(|cx| RemoteVideoTrackView);
         cx.subscribe(&view, |_, _, ev, cx| match ev {
             call::RemoteVideoTrackViewEvent::Close => cx.emit(Event::Close),
         })
@@ -114,7 +111,7 @@ impl Item for SharedScreen {
         cx: &mut Context<Self>,
     ) -> Option<Entity<Self>> {
         Some(cx.new(|cx| Self {
-            view: self.view.update(cx, |view, cx| view.clone(window, cx)),
+            view: self.view.update(cx, |view, cx| view.clone(cx)),
             peer_id: self.peer_id,
             user: self.user.clone(),
             nav_history: Default::default(),

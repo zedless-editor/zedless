@@ -8,8 +8,8 @@ use client::{ChannelId, Client, TypedEnvelope, User, UserStore, ZED_ALWAYS_ACTIV
 use collections::HashSet;
 use futures::{Future, FutureExt, channel::oneshot, future::Shared};
 use gpui::{
-    App, AppContext as _, AsyncApp, Context, Entity, EventEmitter, Global, Subscription, Task,
-    WeakEntity,
+    App, AppContext as _, AsyncApp, Context, Empty, Entity, EventEmitter, Global, IntoElement,
+    Render, Subscription, Task, WeakEntity, Window
 };
 use postage::watch;
 use project::Project;
@@ -17,9 +17,28 @@ use room::Event;
 use settings::Settings;
 use std::sync::Arc;
 
-pub use livekit_client::{RemoteVideoTrack, RemoteVideoTrackView, RemoteVideoTrackViewEvent};
 pub use participant::ParticipantLocation;
 pub use room::Room;
+
+// TODO(zedless-collab): Make proper re-implementation (probably in its own crate) or delete
+pub struct RemoteVideoTrackView;
+impl RemoteVideoTrackView {
+    pub fn clone(&self, cx: &mut Context<Self>) -> Entity<Self> {
+        cx.new(|cx| Self)
+    }
+}
+impl EventEmitter<RemoteVideoTrackViewEvent> for RemoteVideoTrackView {}
+impl Render for RemoteVideoTrackView {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        Empty.into_any_element()
+    }
+}
+
+// TODO(zedless-collab): Co-locate with new RemoteVideoTrackView implementation or delete
+#[derive(Debug)]
+pub enum RemoteVideoTrackViewEvent {
+    Close,
+}
 
 struct GlobalActiveCall(Entity<ActiveCall>);
 

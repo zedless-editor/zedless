@@ -12,7 +12,6 @@ message CreateRoom {}
 
 message CreateRoomResponse {
     Room room = 1;
-    optional LiveKitConnectionInfo live_kit_connection_info = 2;
 }
 
 message JoinRoom {
@@ -22,7 +21,6 @@ message JoinRoom {
 message JoinRoomResponse {
     Room room = 1;
     optional uint64 channel_id = 2;
-    optional LiveKitConnectionInfo live_kit_connection_info = 3;
 }
 
 message RejoinRoom {
@@ -80,7 +78,6 @@ message Room {
     repeated Participant participants = 2;
     repeated PendingParticipant pending_participants = 3;
     repeated Follower followers = 4;
-    string livekit_room = 5;
 }
 
 message Participant {
@@ -159,12 +156,6 @@ message UpdateParticipantLocation {
 
 message RoomUpdated {
     Room room = 1;
-}
-
-message LiveKitConnectionInfo {
-    string server_url = 1;
-    string token = 2;
-    bool can_publish = 3;
 }
 
 message ShareProject {

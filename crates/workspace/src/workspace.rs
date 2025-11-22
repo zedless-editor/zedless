@@ -4986,7 +4986,6 @@ impl Workspace {
         let call = self.active_call()?;
         let room = call.read(cx).room()?.clone();
         let participant = room.read(cx).remote_participant_for_peer_id(peer_id)?;
-        let track = participant.video_tracks.values().next()?.clone();
         let user = participant.user.clone();
 
         for item in pane.read(cx).items_of_type::<SharedScreen>() {
@@ -4995,7 +4994,7 @@ impl Workspace {
             }
         }
 
-        Some(cx.new(|cx| SharedScreen::new(track, peer_id, user.clone(), room.clone(), window, cx)))
+        Some(cx.new(|cx| SharedScreen::new(0, peer_id, user.clone(), room.clone(), window, cx)))
     }
 
     pub fn on_window_activation_changed(&mut self, window: &mut Window, cx: &mut Context<Self>) {

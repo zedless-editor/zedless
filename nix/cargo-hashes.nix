@@ -6,7 +6,6 @@
   "font-kit-0.14.1" = "sha256-/l1o3L4ZRMfmoOJqCDup3dCU3rXG4FUznEvRkHWzHBQ=";
   "jj-lib-0.29.0" = "sha256-+PChmZ46pH4z2MSvT9KNaz2HH29kRf4vZ+2fXxR/SAY=";
   "jupyter-protocol-0.6.0" = "sha256-v+avgSYYT9BJ1+lIEF+Vp1V9D0YH8LGH4XEjweN/pLs=";
-  "libwebrtc-0.3.10" = "sha256-xXRfR750NFxE+lbcB8guP/W7OZsg2bRJzCRS106OZF4=";
   "lsp-types-0.95.1" = "sha256-pLavGU2/96Qzi107rN0erbUzXcApVpfSUZrLgu4hUdU=";
   "notify-8.0.0" = "sha256-09ai0jQ9ti63SvP30fcNDOKagypg6N1T6TRzUW9GVeA=";
   "nvim-rs-0.9.2" = "sha256-cnG18TL/L4NUze4ltz4IKo2uLhuRwmwZd/yNWrCweC4=";

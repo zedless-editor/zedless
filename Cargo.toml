@@ -79,8 +79,6 @@ members = [
     "crates/language_selector",
     "crates/language_tools",
     "crates/languages",
-    "crates/livekit_api",
-    "crates/livekit_client",
     "crates/lsp",
     "crates/markdown",
     "crates/markdown_preview",
@@ -277,8 +275,6 @@ language_models = { path = "crates/language_models" }
 language_selector = { path = "crates/language_selector" }
 language_tools = { path = "crates/language_tools" }
 languages = { path = "crates/languages" }
-livekit_api = { path = "crates/livekit_api" }
-livekit_client = { path = "crates/livekit_client" }
 lsp = { path = "crates/lsp" }
 markdown = { path = "crates/markdown" }
 markdown_preview = { path = "crates/markdown_preview" }
