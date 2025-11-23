@@ -2,33 +2,33 @@
   "languages": {
     "Markdown": {
       "tab_size": 2,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "TOML": {
-      "formatter": "prettier",
+      "formatter": "auto",
       "format_on_save": "off"
     },
     "YAML": {
       "tab_size": 2,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "JSON": {
       "tab_size": 2,
       "preferred_line_length": 120,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "JSONC": {
       "tab_size": 2,
       "preferred_line_length": 120,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "JavaScript": {
       "tab_size": 2,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "CSS": {
       "tab_size": 2,
-      "formatter": "prettier"
+      "formatter": "auto"
     },
     "Rust": {
       "tasks": {
@@ -39,9 +39,16 @@
     }
   },
   "file_types": {
-    "Dockerfile": ["Dockerfile*[!dockerignore]"],
-    "JSONC": ["**/assets/**/*.json", "renovate.json"],
-    "Git Ignore": ["dockerignore"]
+    "Dockerfile": [
+      "Dockerfile*[!dockerignore]"
+    ],
+    "JSONC": [
+      "**/assets/**/*.json",
+      "renovate.json"
+    ],
+    "Git Ignore": [
+      "dockerignore"
+    ]
   },
   "hard_tabs": false,
   "formatter": "auto",
