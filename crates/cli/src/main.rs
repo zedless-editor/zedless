@@ -427,7 +427,7 @@ mod linux {
                 // libexec is the standard, lib/zed is for Arch (and other non-libexec distros),
                 // ./zed is for the target directory in development builds.
                 let possible_locations =
-                    ["../libexec/zed-editor", "../lib/zed/zed-editor", "./zed"];
+                    ["../libexec/zedless-editor", "../lib/zed/zedless-editor", "./zed"];
                 possible_locations
                     .iter()
                     .find_map(|p| dir.join(p).canonicalize().ok().filter(|path| path != &cli))
@@ -576,7 +576,7 @@ mod flatpak {
 
             if !is_app_location_set {
                 args.push("--zed".into());
-                args.push(flatpak_dir.join("libexec").join("zed-editor").into());
+                args.push(flatpak_dir.join("libexec").join("zedless-editor").into());
             }
 
             let error = exec::execvp("/usr/bin/flatpak-spawn", args);
@@ -590,7 +590,7 @@ mod flatpak {
             && env::var("FLATPAK_ID").map_or(false, |id| id.starts_with("dev.zed.Zed"))
         {
             if args.zed.is_none() {
-                args.zed = Some("/app/libexec/zed-editor".into());
+                args.zed = Some("/app/libexec/zedless-editor".into());
                 unsafe {
                     env::set_var("ZED_UPDATE_EXPLANATION", "Please use flatpak to update zed")
                 };
