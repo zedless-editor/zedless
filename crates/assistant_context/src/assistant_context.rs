@@ -22,7 +22,7 @@ use language::{AnchorRangeExt, Bias, Buffer, LanguageRegistry, OffsetRangeExt, P
 use language_model::{
     LanguageModel, LanguageModelCacheConfiguration, LanguageModelCompletionEvent,
     LanguageModelImage, LanguageModelRegistry, LanguageModelRequest, LanguageModelRequestMessage,
-    LanguageModelToolUseId, MessageContent, PaymentRequiredError, Role, StopReason,
+    LanguageModelToolUseId, MessageContent, Role, StopReason,
 };
 use open_ai::Model as OpenAiModel;
 use paths::contexts_dir;
@@ -2163,27 +2163,19 @@ impl AssistantContext {
 
                 this.update(cx, |this, cx| {
                     if let Some(error) = result.as_ref().err() {
-                        if error.is::<PaymentRequiredError>() {
-                            cx.emit(ContextEvent::ShowPaymentRequiredError);
-                            this.update_metadata(assistant_message_id, cx, |metadata| {
-                                metadata.status = MessageStatus::Canceled;
-                            });
-                            Some(error.to_string())
-                        } else {
-                            let error_message = error
-                                .chain()
-                                .map(|err| err.to_string())
-                                .collect::<Vec<_>>()
-                                .join("\n");
-                            cx.emit(ContextEvent::ShowAssistError(SharedString::from(
-                                error_message.clone(),
-                            )));
-                            this.update_metadata(assistant_message_id, cx, |metadata| {
-                                metadata.status =
-                                    MessageStatus::Error(SharedString::from(error_message.clone()));
-                            });
-                            Some(error_message)
-                        }
+                        let error_message = error
+                            .chain()
+                            .map(|err| err.to_string())
+                            .collect::<Vec<_>>()
+                            .join("\n");
+                        cx.emit(ContextEvent::ShowAssistError(SharedString::from(
+                            error_message.clone(),
+                        )));
+                        this.update_metadata(assistant_message_id, cx, |metadata| {
+                            metadata.status =
+                                MessageStatus::Error(SharedString::from(error_message.clone()));
+                        });
+                        Some(error_message)
                     } else {
                         this.update_metadata(assistant_message_id, cx, |metadata| {
                             metadata.status = MessageStatus::Done;

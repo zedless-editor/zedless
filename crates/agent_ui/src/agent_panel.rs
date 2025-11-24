@@ -41,7 +41,7 @@ use anyhow::{Result, anyhow};
 use assistant_context::{AssistantContext, ContextEvent, ContextSummary};
 use assistant_slash_command::SlashCommandWorkingSet;
 use assistant_tool::ToolWorkingSet;
-use client::{DisableAiSettings, UserStore, zed_urls};
+use client::DisableAiSettings;
 use editor::{Anchor, AnchorRangeExt as _, Editor, EditorEvent, MultiBuffer};
 use feature_flags::{self, FeatureFlagAppExt};
 use fs::Fs;
@@ -57,7 +57,7 @@ use language_model::{
 };
 use project::{Project, ProjectPath, Worktree};
 use prompt_store::{PromptBuilder, PromptStore, UserPromptId};
-use proto::Plan;
+
 use rules_library::{RulesLibrary, open_rules_library};
 use search::{BufferSearchBar, buffer_search};
 use settings::{Settings, update_settings_file};
@@ -66,7 +66,7 @@ use time::UtcOffset;
 use ui::utils::WithRemSize;
 use ui::{
     Banner, Callout, ContextMenu, ContextMenuEntry, ElevationIndex, KeyBinding, PopoverMenu,
-    PopoverMenuHandle, ProgressBar, Tab, Tooltip, prelude::*,
+    PopoverMenuHandle, Tab, Tooltip, prelude::*,
 };
 use util::ResultExt as _;
 use workspace::{
@@ -78,7 +78,7 @@ use zed_actions::{
     agent::{OpenConfiguration, ResetOnboarding, ToggleModelSelector},
     assistant::{OpenRulesLibrary, ToggleFocus},
 };
-use zed_llm_client::{CompletionIntent, UsageLimit};
+use zed_llm_client::CompletionIntent;
 
 const AGENT_PANEL_KEY: &str = "agent_panel";
 
@@ -421,7 +421,6 @@ impl ActiveView {
 
 pub struct AgentPanel {
     workspace: WeakEntity<Workspace>,
-    user_store: Entity<UserStore>,
     project: Entity<Project>,
     fs: Arc<dyn Fs>,
     language_registry: Arc<LanguageRegistry>,
@@ -546,7 +545,6 @@ impl AgentPanel {
     ) -> Self {
         let thread = thread_store.update(cx, |this, cx| this.create_thread(cx));
         let fs = workspace.app_state().fs.clone();
-        let user_store = workspace.app_state().user_store.clone();
         let project = workspace.project();
         let language_registry = project.read(cx).languages().clone();
         let workspace = workspace.weak_handle();
@@ -572,7 +570,6 @@ impl AgentPanel {
             MessageEditor::new(
                 fs.clone(),
                 workspace.clone(),
-                user_store.clone(),
                 message_editor_context_store.clone(),
                 prompt_store.clone(),
                 thread_store.downgrade(),
@@ -686,7 +683,6 @@ impl AgentPanel {
         Self {
             active_view,
             workspace,
-            user_store,
             project: project.clone(),
             fs: fs.clone(),
             language_registry,
@@ -828,7 +824,6 @@ impl AgentPanel {
             MessageEditor::new(
                 self.fs.clone(),
                 self.workspace.clone(),
-                self.user_store.clone(),
                 context_store.clone(),
                 self.prompt_store.clone(),
                 self.thread_store.downgrade(),
@@ -1101,7 +1096,6 @@ impl AgentPanel {
             MessageEditor::new(
                 self.fs.clone(),
                 self.workspace.clone(),
-                self.user_store.clone(),
                 context_store,
                 self.prompt_store.clone(),
                 self.thread_store.downgrade(),
@@ -1799,11 +1793,6 @@ impl AgentPanel {
     }
 
     fn render_toolbar(&self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let user_store = self.user_store.read(cx);
-        let usage = user_store.model_request_usage();
-
-        let account_url = zed_urls::account_url(cx);
-
         let focus_handle = self.focus_handle(cx);
 
         let go_back_button = div().child(
@@ -1965,43 +1954,6 @@ impl AgentPanel {
                 move |window, cx| {
                     Some(ContextMenu::build(window, cx, |mut menu, _window, _| {
                         menu = menu.context(focus_handle.clone());
-                        if let Some(usage) = usage {
-                            menu = menu
-                                .header_with_link("Prompt Usage", "Manage", account_url.clone())
-                                .custom_entry(
-                                    move |_window, cx| {
-                                        let used_percentage = match usage.limit {
-                                            UsageLimit::Limited(limit) => {
-                                                Some((usage.amount as f32 / limit as f32) * 100.)
-                                            }
-                                            UsageLimit::Unlimited => None,
-                                        };
-
-                                        h_flex()
-                                            .flex_1()
-                                            .gap_1p5()
-                                            .children(used_percentage.map(|percent| {
-                                                ProgressBar::new("usage", percent, 100., cx)
-                                            }))
-                                            .child(
-                                                Label::new(match usage.limit {
-                                                    UsageLimit::Limited(limit) => {
-                                                        format!("{} / {limit}", usage.amount)
-                                                    }
-                                                    UsageLimit::Unlimited => {
-                                                        format!("{} / ∞", usage.amount)
-                                                    }
-                                                })
-                                                .size(LabelSize::Small)
-                                                .color(Color::Muted),
-                                            )
-                                            .into_any_element()
-                                    },
-                                    move |_, cx| cx.open_url(&zed_urls::account_url(cx)),
-                                )
-                                .separator()
-                        }
-
                         menu = menu
                             .header("MCP Servers")
                             .action(
@@ -2647,88 +2599,8 @@ impl AgentPanel {
             }))
     }
 
-    fn upgrade_button(
-        &self,
-        thread: &Entity<ActiveThread>,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
-        Button::new("upgrade", "Upgrade")
-            .label_size(LabelSize::Small)
-            .style(ButtonStyle::Tinted(ui::TintColor::Accent))
-            .on_click(cx.listener({
-                let thread = thread.clone();
-                move |_, _, _, cx| {
-                    thread.update(cx, |this, _cx| {
-                        this.clear_last_error();
-                    });
-
-                    cx.open_url(&zed_urls::upgrade_to_zed_pro_url(cx));
-                    cx.notify();
-                }
-            }))
-    }
-
     fn error_callout_bg(&self, cx: &Context<Self>) -> Hsla {
         cx.theme().status().error.opacity(0.08)
-    }
-
-    fn render_payment_required_error(
-        &self,
-        thread: &Entity<ActiveThread>,
-        cx: &mut Context<Self>,
-    ) -> AnyElement {
-        const ERROR_MESSAGE: &str =
-            "You reached your free usage limit. Upgrade to Zed Pro for more prompts.";
-
-        let icon = Icon::new(IconName::XCircle)
-            .size(IconSize::Small)
-            .color(Color::Error);
-
-        div()
-            .border_t_1()
-            .border_color(cx.theme().colors().border)
-            .child(
-                Callout::new()
-                    .icon(icon)
-                    .title("Free Usage Exceeded")
-                    .description(ERROR_MESSAGE)
-                    .tertiary_action(self.upgrade_button(thread, cx))
-                    .secondary_action(self.create_copy_button(ERROR_MESSAGE))
-                    .primary_action(self.dismiss_error_button(thread, cx))
-                    .bg_color(self.error_callout_bg(cx)),
-            )
-            .into_any_element()
-    }
-
-    fn render_model_request_limit_reached_error(
-        &self,
-        plan: Plan,
-        thread: &Entity<ActiveThread>,
-        cx: &mut Context<Self>,
-    ) -> AnyElement {
-        let error_message = match plan {
-            Plan::ZedPro => "Upgrade to usage-based billing for more prompts.",
-            Plan::ZedProTrial | Plan::Free => "Upgrade to Zed Pro for more prompts.",
-        };
-
-        let icon = Icon::new(IconName::XCircle)
-            .size(IconSize::Small)
-            .color(Color::Error);
-
-        div()
-            .border_t_1()
-            .border_color(cx.theme().colors().border)
-            .child(
-                Callout::new()
-                    .icon(icon)
-                    .title("Model Prompt Limit Reached")
-                    .description(error_message)
-                    .tertiary_action(self.upgrade_button(thread, cx))
-                    .secondary_action(self.create_copy_button(error_message))
-                    .primary_action(self.dismiss_error_button(thread, cx))
-                    .bg_color(self.error_callout_bg(cx)),
-            )
-            .into_any_element()
     }
 
     fn render_error_message(
@@ -3073,11 +2945,6 @@ impl Render for AgentPanel {
                         this.child(
                             div()
                                 .child(match last_error {
-                                    ThreadError::PaymentRequired => {
-                                        self.render_payment_required_error(thread, cx)
-                                    }
-                                    ThreadError::ModelRequestLimitReached { plan } => self
-                                        .render_model_request_limit_reached_error(plan, thread, cx),
                                     ThreadError::Message { header, message } => {
                                         self.render_error_message(header, message, thread, cx)
                                     }

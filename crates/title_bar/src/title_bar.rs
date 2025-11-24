@@ -24,14 +24,13 @@ use gpui::{
     Subscription, WeakEntity, Window, actions,
 };
 use project::Project;
-use rpc::proto;
 use settings::Settings as _;
 use settings_ui::keybindings;
 use std::sync::Arc;
 use theme::ActiveTheme;
 use title_bar_settings::TitleBarSettings;
 use ui::{
-    Avatar, Button, ButtonLike, ButtonStyle, Chip, ContextMenu, Icon, IconName, IconSize,
+    Avatar, Button, ButtonLike, ButtonStyle, ContextMenu, Icon, IconName, IconSize,
     IconWithIndicator, Indicator, PopoverMenu, Tooltip, h_flex, prelude::*,
 };
 use util::ResultExt;
@@ -502,42 +501,13 @@ impl TitleBar {
     pub fn render_user_menu_button(&mut self, cx: &mut Context<Self>) -> impl Element {
         let user_store = self.user_store.read(cx);
         if let Some(user) = user_store.current_user() {
-            let has_subscription_period = self.user_store.read(cx).subscription_period().is_some();
-            let plan = self.user_store.read(cx).current_plan().filter(|_| {
-                // Since the user might be on the legacy free plan we filter based on whether we have a subscription period.
-                has_subscription_period
-            });
-
             let user_avatar = user.avatar_uri.clone();
-            let free_chip_bg = cx
-                .theme()
-                .colors()
-                .editor_background
-                .opacity(0.5)
-                .blend(cx.theme().colors().text_accent.opacity(0.05));
-
-            let pro_chip_bg = cx
-                .theme()
-                .colors()
-                .editor_background
-                .opacity(0.5)
-                .blend(cx.theme().colors().text_accent.opacity(0.2));
 
             PopoverMenu::new("user-menu")
                 .anchor(Corner::TopRight)
                 .menu(move |window, cx| {
                     ContextMenu::build(window, cx, |menu, _, _cx| {
                         let user_login = user.github_login.clone();
-
-                        let (plan_name, label_color, bg_color) = match plan {
-                            None | Some(proto::Plan::Free) => {
-                                ("Free", Color::Default, free_chip_bg)
-                            }
-                            Some(proto::Plan::ZedProTrial) => {
-                                ("Pro Trial", Color::Accent, pro_chip_bg)
-                            }
-                            Some(proto::Plan::ZedPro) => ("Pro", Color::Accent, pro_chip_bg),
-                        };
 
                         menu.custom_entry(
                             move |_window, _cx| {
@@ -547,11 +517,6 @@ impl TitleBar {
                                     .w_full()
                                     .justify_between()
                                     .child(Label::new(user_login))
-                                    .child(
-                                        Chip::new(plan_name.to_string())
-                                            .bg_color(bg_color)
-                                            .label_color(label_color),
-                                    )
                                     .into_any_element()
                             },
                             move |_, cx| {

@@ -1,7 +1,7 @@
-use client::{Client, UserStore};
+use client::Client;
 use collections::HashMap;
 use editor::Editor;
-use gpui::{AnyWindowHandle, App, AppContext as _, Context, Entity, WeakEntity};
+use gpui::{AnyWindowHandle, App, AppContext as _, Context, WeakEntity};
 use language::language_settings::{EditPredictionProvider, all_language_settings};
 use settings::SettingsStore;
 use smol::stream::StreamExt;
@@ -10,12 +10,11 @@ use ui::Window;
 use util::ResultExt;
 use zeta::{ZetaInlineCompletionProvider};
 
-pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
+pub fn init(client: Arc<Client>, cx: &mut App) {
     let editors: Rc<RefCell<HashMap<WeakEntity<Editor>, AnyWindowHandle>>> = Rc::default();
     cx.observe_new({
         let editors = editors.clone();
         let client = client.clone();
-        let user_store = user_store.clone();
         move |editor: &mut Editor, window, cx: &mut Context<Editor>| {
             if !editor.mode().is_full() {
                 return;
@@ -43,7 +42,6 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
                 editor,
                 provider,
                 &client,
-                user_store.clone(),
                 window,
                 cx,
             );
@@ -55,7 +53,6 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
 
     let mut provider = all_language_settings(None, cx).edit_predictions.provider;
     cx.spawn({
-        let user_store = user_store.clone();
         let editors = editors.clone();
         let client = client.clone();
 
@@ -67,7 +64,6 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
                         &editors,
                         provider,
                         &client,
-                        user_store.clone(),
                         cx,
                     );
                 })
@@ -80,44 +76,18 @@ pub fn init(client: Arc<Client>, user_store: Entity<UserStore>, cx: &mut App) {
     cx.observe_global::<SettingsStore>({
         let editors = editors.clone();
         let client = client.clone();
-        let user_store = user_store.clone();
         move |cx| {
             let new_provider = all_language_settings(None, cx).edit_predictions.provider;
 
             if new_provider != provider {
-                let tos_accepted = user_store
-                    .read(cx)
-                    .current_user_has_accepted_terms()
-                    .unwrap_or(false);
 
                 provider = new_provider;
                 assign_edit_prediction_providers(
                     &editors,
                     provider,
                     &client,
-                    user_store.clone(),
                     cx,
                 );
-
-                if !tos_accepted {
-                    match provider {
-                        EditPredictionProvider::Zed => {
-                            let Some(window) = cx.active_window() else {
-                                return;
-                            };
-
-                            window
-                                .update(cx, |_, window, cx| {
-                                    window.dispatch_action(
-                                        Box::new(zed_actions::OpenZedPredictOnboarding),
-                                        cx,
-                                    );
-                                })
-                                .ok();
-                        }
-                        EditPredictionProvider::None => {}
-                    }
-                }
             }
         }
     })
@@ -134,7 +104,6 @@ fn assign_edit_prediction_providers(
     editors: &Rc<RefCell<HashMap<WeakEntity<Editor>, AnyWindowHandle>>>,
     provider: EditPredictionProvider,
     client: &Arc<Client>,
-    user_store: Entity<UserStore>,
     cx: &mut App,
 ) {
     for (editor, window) in editors.borrow().iter() {
@@ -144,7 +113,6 @@ fn assign_edit_prediction_providers(
                     editor,
                     provider,
                     &client,
-                    user_store.clone(),
                     window,
                     cx,
                 );
@@ -157,7 +125,6 @@ fn assign_edit_prediction_provider(
     editor: &mut Editor,
     provider: EditPredictionProvider,
     client: &Arc<Client>,
-    user_store: Entity<UserStore>,
     window: &mut Window,
     cx: &mut Context<Editor>,
 ) {
@@ -170,7 +137,7 @@ fn assign_edit_prediction_provider(
         }
         EditPredictionProvider::Zed => {
             let zeta =
-                zeta::Zeta::register(client.clone(), user_store, cx);
+                zeta::Zeta::register(client.clone(), cx);
 
             if let Some(buffer) = &singleton_buffer {
                 if buffer.read(cx).file().is_some() {

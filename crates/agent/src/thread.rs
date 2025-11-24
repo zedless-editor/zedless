@@ -12,7 +12,6 @@ use agent_settings::{AgentProfileId, AgentSettings, CompletionMode};
 use anyhow::{Result, anyhow};
 use assistant_tool::{ActionLog, AnyToolCard, Tool, ToolWorkingSet};
 use chrono::{DateTime, Utc};
-use client::{ModelRequestUsage, RequestUsage};
 use collections::HashMap;
 use futures::{FutureExt, StreamExt as _, future::Shared};
 use git::repository::DiffType;
@@ -26,8 +25,7 @@ use language_model::{
     LanguageModelExt as _, LanguageModelId, LanguageModelRegistry, LanguageModelRequest,
     LanguageModelRequestMessage, LanguageModelRequestTool, LanguageModelToolResult,
     LanguageModelToolResultContent, LanguageModelToolUse, LanguageModelToolUseId, MessageContent,
-    ModelRequestLimitReachedError, PaymentRequiredError, Role, SelectedModel, StopReason,
-    TokenUsage,
+    Role, SelectedModel, StopReason, TokenUsage,
 };
 use postage::stream::Stream as _;
 use project::{
@@ -35,7 +33,6 @@ use project::{
     git_store::{GitStore, GitStoreCheckpoint, RepositoryState},
 };
 use prompt_store::{ModelContext, PromptBuilder};
-use proto::Plan;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use settings::Settings;
@@ -48,7 +45,7 @@ use std::{
 use thiserror::Error;
 use util::{ResultExt as _, post_inc};
 use uuid::Uuid;
-use zed_llm_client::{CompletionIntent, CompletionRequestStatus, UsageLimit};
+use zed_llm_client::{CompletionIntent, CompletionRequestStatus};
 
 const MAX_RETRY_ATTEMPTS: u8 = 4;
 const BASE_RETRY_DELAY: Duration = Duration::from_secs(5);
@@ -1848,12 +1845,7 @@ impl Thread {
                                                 ),
                                             );
                                         }
-                                        CompletionRequestStatus::UsageUpdated { amount, limit } => {
-                                            thread.update_model_request_usage(
-                                                amount as u32,
-                                                limit,
-                                                cx,
-                                            );
+                                        CompletionRequestStatus::UsageUpdated { amount: _, limit: _ } => {
                                         }
                                         CompletionRequestStatus::ToolUseLimitReached => {
                                             thread.tool_use_limit_reached = true;
@@ -1965,15 +1957,7 @@ impl Thread {
                                 project.set_agent_location(None, cx);
                             });
 
-                            if error.is::<PaymentRequiredError>() {
-                                cx.emit(ThreadEvent::ShowError(ThreadError::PaymentRequired));
-                            } else if let Some(error) =
-                                error.downcast_ref::<ModelRequestLimitReachedError>()
-                            {
-                                cx.emit(ThreadEvent::ShowError(
-                                    ThreadError::ModelRequestLimitReached { plan: error.plan },
-                                ));
-                            } else if let Some(completion_error) =
+                            if let Some(completion_error) =
                                 error.downcast_ref::<LanguageModelCompletionError>()
                             {
                                 match &completion_error {
@@ -2086,11 +2070,8 @@ impl Thread {
                     let text = match event {
                         LanguageModelCompletionEvent::Text(text) => text,
                         LanguageModelCompletionEvent::StatusUpdate(
-                            CompletionRequestStatus::UsageUpdated { amount, limit },
+                            CompletionRequestStatus::UsageUpdated { amount: _, limit: _ },
                         ) => {
-                            this.update(cx, |thread, cx| {
-                                thread.update_model_request_usage(amount as u32, limit, cx);
-                            })?;
                             continue;
                         }
                         _ => continue,
@@ -2971,7 +2952,6 @@ impl Thread {
         &self.project
     }
 
-
     pub fn cumulative_token_usage(&self) -> TokenUsage {
         self.cumulative_token_usage
     }
@@ -3048,20 +3028,6 @@ impl Thread {
         }
     }
 
-    fn update_model_request_usage(&self, amount: u32, limit: UsageLimit, cx: &mut Context<Self>) {
-        self.project.update(cx, |project, cx| {
-            project.user_store().update(cx, |user_store, cx| {
-                user_store.update_model_request_usage(
-                    ModelRequestUsage(RequestUsage {
-                        amount: amount as i32,
-                        limit,
-                    }),
-                    cx,
-                )
-            })
-        });
-    }
-
     pub fn deny_tool_use(
         &mut self,
         tool_use_id: LanguageModelToolUseId,
@@ -3086,10 +3052,6 @@ impl Thread {
 
 #[derive(Debug, Clone, Error)]
 pub enum ThreadError {
-    #[error("Payment required")]
-    PaymentRequired,
-    #[error("Model request limit reached")]
-    ModelRequestLimitReached { plan: Plan },
     #[error("Message {header}: {message}")]
     Message {
         header: SharedString,

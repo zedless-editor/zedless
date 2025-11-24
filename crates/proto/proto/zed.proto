@@ -137,10 +137,7 @@ message Envelope {
         Unfollow unfollow = 101;
         GetPrivateUserInfo get_private_user_info = 102;
         GetPrivateUserInfoResponse get_private_user_info_response = 103;
-        UpdateUserPlan update_user_plan = 234;
         UpdateDiffBases update_diff_bases = 104;
-        AcceptTermsOfService accept_terms_of_service = 239;
-        AcceptTermsOfServiceResponse accept_terms_of_service_response = 240;
 
         OnTypeFormatting on_type_formatting = 105;
         OnTypeFormattingResponse on_type_formatting_response = 106;
