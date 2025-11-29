@@ -256,13 +256,7 @@ pub fn app_menus() -> Vec<Menu> {
                     super::OpenBrowser {
                     	url: "https://github.com/zedless-editor/zedless".into(),
                     },
-                ),
-                MenuItem::action(
-                    "Join the Team",
-                    super::OpenBrowser {
-                        url: "https://zed.dev/jobs".into(),
-                    },
-                ),
+                )
             ],
         },
     ]
