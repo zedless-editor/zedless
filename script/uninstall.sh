@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+# TODO(zedless-packaging): Finish updating for Zedless
+
 # Uninstalls Zed that was installed using the install.sh script
 
 check_remaining_installations() {
@@ -58,24 +60,24 @@ linux() {
     db_suffix="stable"
     case "$channel" in
       stable)
-        appid="dev.zed.Zed"
+        appid="org.zedless.Zedless"
         db_suffix="stable"
         ;;
       nightly)
-        appid="dev.zed.Zed-Nightly"
+        appid="org.zedless.Zedless-Nightly"
         db_suffix="nightly"
         ;;
       preview)
-        appid="dev.zed.Zed-Preview"
+        appid="org.zedless.Zedless-Preview"
         db_suffix="preview"
         ;;
       dev)
-        appid="dev.zed.Zed-Dev"
+        appid="org.zedless.Zedless-Dev"
         db_suffix="dev"
         ;;
       *)
         echo "Unknown release channel: ${channel}. Using stable app ID."
-        appid="dev.zed.Zed"
+        appid="org.zedless.Zedless"
         db_suffix="stable"
         ;;
     esac
@@ -107,22 +109,22 @@ linux() {
 macos() {
     app="Zed.app"
     db_suffix="stable"
-    app_id="dev.zed.Zed"
+    app_id="org.zedless.Zedless"
     case "$channel" in
       nightly)
         app="Zed Nightly.app"
         db_suffix="nightly"
-        app_id="dev.zed.Zed-Nightly"
+        app_id="org.zedless.Zedless-Nightly"
         ;;
       preview)
         app="Zed Preview.app"
         db_suffix="preview"
-        app_id="dev.zed.Zed-Preview"
+        app_id="org.zedless.Zedless-Preview"
         ;;
       dev)
         app="Zed Dev.app"
         db_suffix="dev"
-        app_id="dev.zed.Zed-Dev"
+        app_id="org.zedless.Zedless-Dev"
         ;;
     esac
 

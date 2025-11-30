@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
+# TODO(zedless-packaging): Finish updating for Zedless
+
 # Downloads the latest tarball from https://zed.dev/releases and unpacks it
 # into ~/.local/. If you'd prefer to do this manually, instructions are at
 # https://zed.dev/docs/linux.
@@ -88,20 +90,20 @@ linux() {
     appid=""
     case "$channel" in
       stable)
-        appid="dev.zed.Zed"
+        appid="org.zedless.Zedless"
         ;;
       nightly)
-        appid="dev.zed.Zed-Nightly"
+        appid="org.zedless.Zedless-Nightly"
         ;;
       preview)
-        appid="dev.zed.Zed-Preview"
+        appid="org.zedless.Zedless-Preview"
         ;;
       dev)
-        appid="dev.zed.Zed-Dev"
+        appid="org.zedless.Zedless-Dev"
         ;;
       *)
         echo "Unknown release channel: ${channel}. Using stable app ID."
-        appid="dev.zed.Zed"
+        appid="org.zedless.Zedless"
         ;;
     esac
 

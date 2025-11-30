@@ -1,3 +1,5 @@
+# TODO(zedless-packaging): Finish updating for zedless
+
 {
   lib,
   rustPlatform,
@@ -230,7 +232,7 @@ in
           export APP_NAME="Zedless"
           export APP_ARGS="%U"
           mkdir -p "$out/share/applications"
-          ${lib.getExe envsubst} < "crates/zed/resources/zed.desktop.in" > "$out/share/applications/cooking.schizo.Zedless.desktop"
+          ${lib.getExe envsubst} < "crates/zed/resources/zed.desktop.in" > "$out/share/applications/org.zedless.Zedless.desktop"
         )
       ''
       + lib.optionalString buildRemoteServer ''
