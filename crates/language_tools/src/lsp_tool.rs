@@ -226,6 +226,7 @@ impl LanguageServerState {
                     BinaryStatus::Stopping => Some(Color::Disabled),
                     BinaryStatus::Stopped => Some(Color::Disabled),
                     BinaryStatus::Failed { .. } => Some(Color::Error),
+                    BinaryStatus::NotAvailable => Some(Color::Info),
                 })
                 .or_else(|| {
                     Some(match server_info.health? {
@@ -774,6 +775,7 @@ impl LspTool {
                     }
                     BinaryStatus::Stopped => {}
                     BinaryStatus::Failed { .. } => {}
+                    BinaryStatus::NotAvailable => {}
                 }
 
                 match server_names_to_worktrees.get(server_name) {

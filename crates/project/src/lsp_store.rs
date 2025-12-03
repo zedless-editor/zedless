@@ -367,7 +367,7 @@ impl LocalLspStore {
                     }
 
                     Err(SilentError::Silent) => {
-                        delegate.update_status(adapter.name(), BinaryStatus::Stopped);
+                        delegate.update_status(adapter.name(), BinaryStatus::NotAvailable);
                         None
                     }
 
@@ -11332,6 +11332,10 @@ fn subscribe_to_binary_statuses(
                         BinaryStatus::Failed { error } => {
                             message = Some(error);
                             proto::ServerBinaryStatus::Failed
+                        }
+                        BinaryStatus::NotAvailable => {
+                            message = Some("The binary for this language server is not available.".to_string());
+                            proto::ServerBinaryStatus::Stopped
                         }
                     };
                     cx.emit(LspStoreEvent::LanguageServerUpdate {
