@@ -161,6 +161,7 @@ pub enum BinaryStatus {
     Stopping,
     Stopped,
     Failed { error: String },
+    NotAvailable,
 }
 
 #[derive(Clone)]
