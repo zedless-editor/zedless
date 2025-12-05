@@ -38,19 +38,19 @@ trait InstalledApp {
 #[command(
     name = "zed",
     disable_version_flag = true,
-    before_help = "The Zed CLI binary.
-This CLI is a separate binary that invokes Zed.
+    before_help = "The Zedless CLI binary.
+This CLI is a separate binary that invokes Zedless.
 
 Examples:
-    `zed`
-          Simply opens Zed
-    `zed --foreground`
+    `zedless`
+          Simply opens Zedless
+    `zedless --foreground`
           Runs in foreground (shows all logs)
-    `zed path-to-your-project`
-          Open your project in Zed
-    `zed -n path-to-file `
+    `zedless path-to-your-project`
+          Open your project in Zedless
+    `zedless -n path-to-file `
           Open file/folder in a new window",
-    after_help = "To read from stdin, append '-', e.g. 'ps axf | zed -'"
+    after_help = "To read from stdin, append '-', e.g. 'ps axf | zedless -'"
 )]
 struct Args {
     /// Wait for all of the given paths to be opened/closed before exiting.
@@ -443,7 +443,7 @@ mod linux {
     impl InstalledApp for App {
         fn zed_version_string(&self) -> String {
             format!(
-                "Zed {}{}{} – {}",
+                "ZedLess {}{}{} – {}",
                 if *RELEASE_CHANNEL == "stable" {
                     "".to_string()
                 } else {
@@ -677,7 +677,7 @@ mod windows {
     impl InstalledApp for App {
         fn zed_version_string(&self) -> String {
             format!(
-                "Zed {}{}{} – {}",
+                "ZedLess {}{}{} – {}",
                 if *release_channel::RELEASE_CHANNEL_NAME == "stable" {
                     "".to_string()
                 } else {
@@ -842,7 +842,7 @@ mod mac_os {
 
     impl InstalledApp for Bundle {
         fn zed_version_string(&self) -> String {
-            format!("Zed {} – {}", self.version(), self.path().display(),)
+            format!("Zedless {} – {}", self.version(), self.path().display(),)
         }
 
         fn launch(&self, url: String) -> anyhow::Result<()> {
