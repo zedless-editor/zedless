@@ -14,6 +14,8 @@ pub struct ZedlessSettings {
     #[serde(default)]
     /// Zeta server URL.
     pub zeta_url: Option<String>,
+    /// Starting path for path prompts.
+    pub projects_base_path: Option<String>,
 }
 
 impl Settings for ZedlessSettings {

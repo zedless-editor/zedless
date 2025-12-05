@@ -106,6 +106,7 @@ pub use workspace_settings::{
     AutosaveSetting, BottomDockLayout, RestoreOnStartupBehavior, TabBarSettings, WorkspaceSettings,
 };
 use zed_actions::{Spawn, feedback::FileBugReport};
+use zedless_settings::ZedlessSettings;
 
 use crate::notifications::NotificationId;
 use crate::persistence::{
@@ -511,7 +512,7 @@ pub fn init_settings(cx: &mut App) {
 }
 
 fn prompt_and_open_paths(app_state: Arc<AppState>, options: PathPromptOptions, cx: &mut App) {
-    let paths = cx.prompt_for_paths(options);
+    let paths = cx.prompt_for_paths(options, None);
     cx.spawn(
         async move |cx| match paths.await.anyhow().and_then(|res| res) {
             Ok(Some(paths)) => {
@@ -2024,6 +2025,9 @@ impl Workspace {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> oneshot::Receiver<Option<Vec<PathBuf>>> {
+        let initial_path = ZedlessSettings::get_global(cx)
+            .projects_base_path
+            .clone();
         if !lister.is_local(cx) || !WorkspaceSettings::get_global(cx).use_system_path_prompts {
             let prompt = self.on_prompt_for_open_path.take().unwrap();
             let rx = prompt(self, lister, window, cx);
@@ -2031,7 +2035,7 @@ impl Workspace {
             rx
         } else {
             let (tx, rx) = oneshot::channel();
-            let abs_path = cx.prompt_for_paths(path_prompt_options);
+            let abs_path = cx.prompt_for_paths(path_prompt_options, initial_path);
 
             cx.spawn_in(window, async move |workspace, cx| {
                 let Ok(result) = abs_path.await else {
