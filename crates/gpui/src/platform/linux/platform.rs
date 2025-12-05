@@ -275,6 +275,7 @@ impl<P: LinuxClient + 'static> Platform for P {
     fn prompt_for_paths(
         &self,
         options: PathPromptOptions,
+        initial_path: Option<String>,
     ) -> oneshot::Receiver<Result<Option<Vec<PathBuf>>>> {
         let (done_tx, done_rx) = oneshot::channel();
 
@@ -290,14 +291,27 @@ impl<P: LinuxClient + 'static> Platform for P {
                     "Open File"
                 };
 
-                let request = match ashpd::desktop::file_chooser::OpenFileRequest::default()
+                let req = ashpd::desktop::file_chooser::OpenFileRequest::default()
                     .modal(true)
                     .title(title)
                     .multiple(options.multiple)
-                    .directory(options.directories)
-                    .send()
-                    .await
-                {
+                    .directory(options.directories);
+
+                let req2 = if let Some(initpath) = initial_path {
+                    if let Ok(r) = req.current_folder(initpath) {
+                        r
+                    } else {
+                        ashpd::desktop::file_chooser::OpenFileRequest::default()
+                            .modal(true)
+                            .title(title)
+                            .multiple(options.multiple)
+                            .directory(options.directories)
+                    }
+                } else {
+                    req
+                };
+
+                let request = match req2.send().await {
                     Ok(request) => request,
                     Err(err) => {
                         let result = match err {

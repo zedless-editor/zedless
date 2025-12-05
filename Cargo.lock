@@ -17933,6 +17933,7 @@ dependencies = [
  "windows 0.61.1",
  "workspace-hack",
  "zed_actions",
+ "zedless_settings",
  "zlog",
 ]
 

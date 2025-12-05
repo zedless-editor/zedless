@@ -329,6 +329,7 @@ impl Platform for TestPlatform {
     fn prompt_for_paths(
         &self,
         _options: crate::PathPromptOptions,
+        _initial_path: Option<String>,
     ) -> oneshot::Receiver<Result<Option<Vec<std::path::PathBuf>>>> {
         unimplemented!()
     }

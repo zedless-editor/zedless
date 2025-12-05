@@ -799,8 +799,9 @@ impl App {
     pub fn prompt_for_paths(
         &self,
         options: PathPromptOptions,
+        initial_path: Option<String>
     ) -> oneshot::Receiver<Result<Option<Vec<PathBuf>>>> {
-        self.platform.prompt_for_paths(options)
+        self.platform.prompt_for_paths(options, initial_path)
     }
 
     /// Displays a platform modal for selecting a new path where a file can be saved.

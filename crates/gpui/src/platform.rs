@@ -220,6 +220,7 @@ pub(crate) trait Platform: 'static {
     fn prompt_for_paths(
         &self,
         options: PathPromptOptions,
+        initial_path: Option<String>,
     ) -> oneshot::Receiver<Result<Option<Vec<PathBuf>>>>;
     fn prompt_for_new_path(&self, directory: &Path) -> oneshot::Receiver<Result<Option<PathBuf>>>;
     fn can_select_mixed_files_and_dirs(&self) -> bool;
