@@ -12,6 +12,8 @@
   rustfmt,
   protobuf,
   gdb,
+  python3,
+  writeShellScriptBin,
 }:
 (mkShell.override { inherit (zedless) stdenv; }) {
   inputsFrom = [ zedless ];
@@ -23,6 +25,15 @@
     nixfmt-rfc-style
     rustfmt
     gdb
+    (python3.withPackages (
+      python3Packages: with python3Packages; [
+        click
+      ]
+    ))
+    (writeShellScriptBin "zlt" ''
+      set -eu
+      exec python3 "$ZEDLESS_ZLT_SRC_PATH/zlt.py" "$@"
+    '')
   ];
 
   env =
@@ -47,4 +58,8 @@
       };
       PROTOC = "${protobuf}/bin/protoc";
     };
+
+  shellHook = ''
+    export ZEDLESS_ZLT_SRC_PATH="$PWD/tooling/zlt/src"
+  '';
 }
