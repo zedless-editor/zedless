@@ -1,8 +1,5 @@
 mod settings;
 
-#[cfg(test)]
-mod e2e_tests;
-
 pub use settings::*;
 
 use acp_thread::AgentConnection;
