@@ -18598,6 +18598,7 @@ dependencies = [
  "workspace",
  "workspace-hack",
  "zed_actions",
+ "zedless",
  "zedless_settings",
  "zeta",
  "zlog",
