@@ -7,22 +7,19 @@ pub use init::*;
 
 use anyhow::{Context as _, Result};
 use arrayvec::ArrayVec;
-use client::{Client, EditPredictionUsage, UserStore};
+use client::Client;
 use collections::{HashMap, VecDeque};
 use futures::AsyncReadExt;
 use gpui::{
-    App, AppContext as _, AsyncApp, Context, Entity, EntityId, Global, SemanticVersion,
-    Task, actions,
+    App, AppContext as _, AsyncApp, Context, Entity, EntityId, Global, SemanticVersion, Task,
+    actions,
 };
 use http_client::{HttpClient, Method};
 use input_excerpt::excerpt_for_cursor_position;
-use language::{
-    Anchor, Buffer, BufferSnapshot, EditPreview, OffsetRangeExt, ToPoint, text_diff,
-};
+use language::{Anchor, Buffer, BufferSnapshot, EditPreview, OffsetRangeExt, ToPoint, text_diff};
 use project::Project;
 use release_channel::AppVersion;
 use settings::Settings;
-use zedless_settings::ZedlessSettings;
 use std::{
     borrow::Cow,
     cmp,
@@ -39,6 +36,7 @@ use uuid::Uuid;
 use zed_llm_client::{
     EXPIRED_LLM_TOKEN_HEADER_NAME, PredictEditsBody, PredictEditsResponse, ZED_VERSION_HEADER_NAME,
 };
+use zedless_settings::ZedlessSettings;
 
 const CURSOR_MARKER: &'static str = "<|user_cursor_is_here|>";
 const START_OF_FILE_MARKER: &'static str = "<|start_of_file|>";
@@ -183,7 +181,6 @@ pub struct Zeta {
     events: VecDeque<Event>,
     registered_buffers: HashMap<gpui::EntityId, RegisteredBuffer>,
     shown_completions: VecDeque<InlineCompletion>,
-    user_store: Entity<UserStore>,
 }
 
 impl Zeta {
@@ -193,11 +190,10 @@ impl Zeta {
 
     pub fn register(
         client: Arc<Client>,
-        user_store: Entity<UserStore>,
         cx: &mut App,
     ) -> Entity<Self> {
         let this = Self::global(cx).unwrap_or_else(|| {
-            let entity = cx.new(|cx| Self::new(client, user_store, cx));
+            let entity = cx.new(|cx| Self::new(client, cx));
             cx.set_global(ZetaGlobal(entity.clone()));
             entity
         });
@@ -209,21 +205,12 @@ impl Zeta {
         self.events.clear();
     }
 
-    pub fn usage(&self, cx: &App) -> Option<EditPredictionUsage> {
-        self.user_store.read(cx).edit_prediction_usage()
-    }
-
-    fn new(
-        client: Arc<Client>,
-        user_store: Entity<UserStore>,
-        _cx: &mut Context<Self>,
-    ) -> Self {
+    fn new(client: Arc<Client>, _cx: &mut Context<Self>) -> Self {
         Self {
             client,
             events: VecDeque::new(),
             shown_completions: VecDeque::new(),
             registered_buffers: HashMap::default(),
-            user_store,
         }
     }
 
@@ -302,9 +289,7 @@ impl Zeta {
     ) -> Task<Result<Option<InlineCompletion>>>
     where
         F: FnOnce(PerformPredictEditsParams) -> R + 'static,
-        R: Future<Output = Result<(PredictEditsResponse, Option<EditPredictionUsage>)>>
-            + Send
-            + 'static,
+        R: Future<Output = Result<PredictEditsResponse>> + Send + 'static,
     {
         let snapshot = self.report_changes_for_buffer(&buffer, cx);
         let diagnostic_groups = snapshot.diagnostic_groups(None);
@@ -341,9 +326,12 @@ impl Zeta {
             None
         };
 
-        let server_url = ZedlessSettings::get_global(cx).zeta_url.clone().context("Zeta server URL not configured");
+        let server_url = ZedlessSettings::get_global(cx)
+            .zeta_url
+            .clone()
+            .context("Zeta server URL not configured");
 
-        cx.spawn(async move |this, cx| {
+        cx.spawn(async move |_, cx| {
             let server_url = server_url?;
 
             struct BackgroundValues {
@@ -411,7 +399,7 @@ impl Zeta {
                 body,
             })
             .await;
-            let (response, usage) = match response {
+            let response = match response {
                 Ok(response) => response,
                 Err(err) => {
                     return Err(err);
@@ -419,15 +407,6 @@ impl Zeta {
             };
 
             log::debug!("completion response: {}", &response.output_excerpt);
-
-            if let Some(usage) = usage {
-                this.update(cx, |this, cx| {
-                    this.user_store.update(cx, |user_store, cx| {
-                        user_store.update_edit_prediction_usage(usage, cx);
-                    });
-                })
-                .ok();
-            }
 
             Self::process_completion_response(
                 response,
@@ -605,9 +584,7 @@ and then another
     ) -> Task<Result<Option<InlineCompletion>>> {
         use std::future::ready;
 
-        self.request_completion_impl(None, buffer, position, cx, |_params| {
-            ready(Ok((response, None)))
-        })
+        self.request_completion_impl(None, buffer, position, cx, |_params| ready(Ok(response)))
     }
 
     pub fn request_completion(
@@ -617,18 +594,12 @@ and then another
         position: language::Anchor,
         cx: &mut Context<Self>,
     ) -> Task<Result<Option<InlineCompletion>>> {
-        self.request_completion_impl(
-            project,
-            buffer,
-            position,
-            cx,
-            Self::perform_predict_edits,
-        )
+        self.request_completion_impl(project, buffer, position, cx, Self::perform_predict_edits)
     }
 
     fn perform_predict_edits(
         params: PerformPredictEditsParams,
-    ) -> impl Future<Output = Result<(PredictEditsResponse, Option<EditPredictionUsage>)>> {
+    ) -> impl Future<Output = Result<PredictEditsResponse>> {
         async move {
             let PerformPredictEditsParams {
                 client,
@@ -643,8 +614,7 @@ and then another
 
             loop {
                 let request_builder = http_client::Request::builder().method(Method::POST);
-                let request_builder =
-                    request_builder.uri(server_url.clone());
+                let request_builder = request_builder.uri(server_url.clone());
                 let request = request_builder
                     .header("Content-Type", "application/json")
                     .header(ZED_VERSION_HEADER_NAME, app_version.to_string())
@@ -653,11 +623,9 @@ and then another
                 let mut response = http_client.send(request).await?;
 
                 if response.status().is_success() {
-                    let usage = EditPredictionUsage::from_headers(response.headers()).ok();
-
                     let mut body = String::new();
                     response.body_mut().read_to_string(&mut body).await?;
-                    return Ok((serde_json::from_str(&body)?, usage));
+                    return Ok(serde_json::from_str(&body)?);
                 } else if !did_retry
                     && response
                         .headers()
@@ -1042,10 +1010,6 @@ impl inline_completion::EditPredictionProvider for ZetaInlineCompletionProvider 
         true
     }
 
-    fn usage(&self, cx: &App) -> Option<EditPredictionUsage> {
-        self.zeta.read(cx).usage(cx)
-    }
-
     fn is_enabled(
         &self,
         _buffer: &Entity<Buffer>,
@@ -1092,12 +1056,7 @@ impl inline_completion::EditPredictionProvider for ZetaInlineCompletionProvider 
             let completion_request = this.update(cx, |this, cx| {
                 this.last_request_timestamp = Instant::now();
                 this.zeta.update(cx, |zeta, cx| {
-                    zeta.request_completion(
-                        project.as_ref(),
-                        &buffer,
-                        position,
-                        cx,
-                    )
+                    zeta.request_completion(project.as_ref(), &buffer, position, cx)
                 })
             });
 
@@ -1269,10 +1228,10 @@ mod tests {
     use http_client::FakeHttpClient;
     use indoc::indoc;
     use language::Point;
+    use language::ToOffset;
+    use language_model::RefreshLlmTokenListener;
     use rpc::proto;
     use settings::SettingsStore;
-    use language_model::RefreshLlmTokenListener;
-    use language::ToOffset;
 
     use super::*;
 
@@ -1487,8 +1446,7 @@ mod tests {
             RefreshLlmTokenListener::register(client.clone(), cx);
         });
         let server = FakeServer::for_client(42, &client, cx).await;
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
-        let zeta = cx.new(|cx| Zeta::new(client, user_store, cx));
+        let zeta = cx.new(|cx| Zeta::new(client, cx));
 
         let buffer = cx.new(|cx| Buffer::local(buffer_content, cx));
         let cursor = buffer.read_with(cx, |buffer, _| buffer.anchor_before(Point::new(1, 0)));
@@ -1541,8 +1499,7 @@ mod tests {
             RefreshLlmTokenListener::register(client.clone(), cx);
         });
         let server = FakeServer::for_client(42, &client, cx).await;
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
-        let zeta = cx.new(|cx| Zeta::new(client, user_store, cx));
+        let zeta = cx.new(|cx| Zeta::new(client, cx));
 
         let buffer = cx.new(|cx| Buffer::local(buffer_content, cx));
         let snapshot = buffer.read_with(cx, |buffer, _| buffer.snapshot());

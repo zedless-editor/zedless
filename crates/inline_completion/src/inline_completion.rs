@@ -1,6 +1,5 @@
 use std::ops::Range;
 
-use client::EditPredictionUsage;
 use gpui::{App, Context, Entity, SharedString};
 use language::Buffer;
 use project::Project;
@@ -62,10 +61,6 @@ pub trait EditPredictionProvider: 'static + Sized {
         false
     }
 
-    fn usage(&self, _cx: &App) -> Option<EditPredictionUsage> {
-        None
-    }
-
     fn is_enabled(
         &self,
         buffer: &Entity<Buffer>,
@@ -109,7 +104,6 @@ pub trait InlineCompletionProviderHandle {
     ) -> bool;
     fn show_completions_in_menu(&self) -> bool;
     fn show_tab_accept_marker(&self) -> bool;
-    fn usage(&self, cx: &App) -> Option<EditPredictionUsage>;
     fn is_refreshing(&self, cx: &App) -> bool;
     fn refresh(
         &self,
@@ -154,10 +148,6 @@ where
 
     fn show_tab_accept_marker(&self) -> bool {
         T::show_tab_accept_marker()
-    }
-
-    fn usage(&self, cx: &App) -> Option<EditPredictionUsage> {
-        self.read(cx).usage(cx)
     }
 
     fn is_enabled(
