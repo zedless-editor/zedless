@@ -946,24 +946,29 @@ fn about(
 ) {
     let release_channel = ReleaseChannel::global(cx).display_name();
     let version = env!("CARGO_PKG_VERSION");
+    let zedless_version = zedless::ZEDLESS_VERSION;
     let debug = if cfg!(debug_assertions) {
         "(debug)"
     } else {
         ""
     };
-    let message = format!("{release_channel} {version} {debug}");
-    let detail = AppCommitSha::try_global(cx).map(|sha| sha.full());
+    let message = format!("{release_channel} {zedless_version} {debug}");
+    let detail = if let Some(commit_hash) = AppCommitSha::try_global(cx).map(|sha| sha.full()) {
+        format!("{commit_hash}\n\nBased on Zed {version}")
+    } else {
+        format!("Based on Zed {version}")
+    };
 
     let prompt = window.prompt(
         PromptLevel::Info,
         &message,
-        detail.as_deref(),
+        Some(&detail),
         &["Copy", "OK"],
         cx,
     );
     cx.spawn(async move |_, cx| {
         if let Ok(0) = prompt.await {
-            let content = format!("{}\n{}", message, detail.as_deref().unwrap_or(""));
+            let content = format!("{}\n{}", message, detail);
             cx.update(|cx| {
                 cx.write_to_clipboard(gpui::ClipboardItem::new_string(content));
             })

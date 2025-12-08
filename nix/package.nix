@@ -45,8 +45,8 @@ let
   gpu-lib = if withGLES then libglvnd else vulkan-loader;
 
   # Cargo.toml located in repo root does not contain any version information.
-  cargoToml = fromTOML (readFile ../crates/zed/Cargo.toml);
-  pname = "zedless";
+  cargoToml = fromTOML (readFile ../crates/zedless/Cargo.toml);
+  pname = cargoToml.package.name;
   version = cargoToml.package.version;
   src = toSource {
     root = ../.;

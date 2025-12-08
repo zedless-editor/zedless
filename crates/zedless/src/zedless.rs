@@ -11,3 +11,5 @@ impl From<anyhow::Error> for SilentError {
         SilentError::Error { error: err }
     }
 }
+
+pub const ZEDLESS_VERSION: &'static str = env!("CARGO_PKG_VERSION");
