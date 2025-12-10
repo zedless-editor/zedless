@@ -466,6 +466,7 @@ impl ActivityIndicator {
                     failed.push(status.name.clone());
                 }
                 LanguageServerStatusUpdate::Binary(BinaryStatus::None) => {}
+                LanguageServerStatusUpdate::Binary(BinaryStatus::NotAvailable) => {}
                 LanguageServerStatusUpdate::Health(health, server_status) => match server_status {
                     Some(server_status) => {
                         health_messages.push((status.name.clone(), *health, server_status.clone()));
