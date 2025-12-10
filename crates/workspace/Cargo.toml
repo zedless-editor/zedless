@@ -62,6 +62,7 @@ ui.workspace = true
 util.workspace = true
 uuid.workspace = true
 zed_actions.workspace = true
+zedless_settings.workspace = true
 workspace-hack.workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
