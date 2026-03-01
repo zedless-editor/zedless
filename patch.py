@@ -198,6 +198,8 @@ bannedFunctions = [
 ]
 
 bannedStructs = [
+    "LlmApiToken",
+    "SystemSpecs",
     "Telemetry",
     "TelemetrySettings",
     "TelemetryState",
