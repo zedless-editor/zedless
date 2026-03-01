@@ -92,14 +92,8 @@ bannedPublicFunctions = [
 
 with chdir("source"):
     for function in bannedPublicFunctions:
-        deletePatterns("crates/", "rust", [
-            f"pub fn {function}($$$) -> $_;",
-            f"pub fn {function}($$$);",
-        ], "function_signature_item")
-        deletePatterns("crates/", "rust", [
-            f"pub fn {function}($$$) -> $_ {{$$$}}",
-            f"pub fn {function}($$$) {{$$$}}",
-        ], "function_item")
+        deleteDeclarations("function_signature_item", function)
+        deleteDeclarations("function_item", function)
         deletePatterns("crates/", "rust", [
             f"{function}($$$);",
             f"$_::{function}($$$);",
