@@ -191,6 +191,7 @@ def removeExprArguments(string):
     )
 
 bannedFunctions = [
+    "report_discovered_project_type_events",
     "send_telemetry",
     "set_authenticated_user_info",
     "telemetry",
