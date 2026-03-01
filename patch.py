@@ -116,12 +116,12 @@ def removeFieldsInDeclarations(identifier):
         mode="any"
     )
 
-bannedPublicFunctions = [
+bannedFunctions = [
     "send_telemetry",
 ]
 
 with chdir("source"):
-    for function in bannedPublicFunctions:
+    for function in bannedFunctions:
         deleteDeclarations("function_signature_item", function)
         deleteDeclarations("function_item", function)
         deletePatterns("crates/", "rust", [
