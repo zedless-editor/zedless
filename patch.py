@@ -116,6 +116,67 @@ def removeFieldsInDeclarations(identifier):
         mode="any"
     )
 
+def removeExprArguments(string):
+    print("remove expression arguments:", string)
+    matchingIdentifier = {
+        "kind": "identifier",
+        "pattern": string
+    }
+    matchingCallExpression = {
+        "kind": "call_expression",
+        "has": {
+            "any": [
+                matchingIdentifier,
+                {
+                    "kind": "field_expression",
+                    "pattern": f"$_.{string}"
+                }
+            ],
+            "stopBy": "end"
+        }
+    }
+    editAstAdvanced(
+        "crates/", "rust",
+        [
+            {
+                "inside": {
+                    "any": [
+                        { "kind": "arguments" },
+                        { "kind": "field_initializer_list" }
+                    ]
+                }
+            },
+            {
+                "any": [
+                    matchingIdentifier,
+                    matchingCallExpression,
+                    {
+                        "kind": "shorthand_field_initializer",
+                        "has": matchingIdentifier
+                    },
+                    {
+                        "kind": "field_initializer",
+                        "has": {
+                            "any": [
+                                matchingIdentifier,
+                                matchingCallExpression,
+                                {
+                                    "kind": "field_identifier",
+                                    "regex": f"^{string}$"
+                                },
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+        {
+            "template": "",
+            "expandEnd": { "regex": "," }
+        },
+        mode="all"
+    )
+
 bannedFunctions = [
     "send_telemetry",
 ]
