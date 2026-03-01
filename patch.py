@@ -237,3 +237,10 @@ with chdir("source"):
 
     removeFieldsInDeclarations("telemetry")
     removeExprArguments("telemetry")
+
+    deletePatterns("crates/", "rust", [
+        "let system_id = $_;",
+        "let metrics_id = $_;",
+        "if let $_ = system_id { $$$ }",
+        "if let $_ = metrics_id { $$$ }",
+    ])
