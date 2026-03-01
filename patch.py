@@ -86,6 +86,36 @@ def nullifyExpressions(patterns, empty, deleteStatements=False):
             empty
         )
 
+def removeFieldsInDeclarations(identifier):
+    print("remove fields and parameters in declarations:", identifier)
+    editAstAdvanced(
+        "crates/", "rust", [
+            {
+                "all": [
+                    { "kind": "field_declaration" },
+                    { "has": { "field": "name", "regex": f"^{identifier}$" } }
+                ]
+            },
+            {
+                "all": [
+                    { "kind": "parameter"},
+                    { "has": { "field": "pattern", "pattern": identifier } }
+                ]
+            },
+        ],
+        {
+            "template": "",
+            "expandStart": {
+                "any": [
+                    { "kind": "line_comment" },
+                    { "kind": "attribute_item" }
+                ]
+            },
+            "expandEnd": { "regex": "," }
+        },
+        mode="any"
+    )
+
 bannedPublicFunctions = [
     "send_telemetry",
 ]
