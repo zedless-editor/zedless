@@ -181,6 +181,12 @@ bannedFunctions = [
     "send_telemetry",
 ]
 
+bannedStructs = [
+    "Telemetry",
+    "TelemetrySettings",
+    "TelemetryState",
+]
+
 with chdir("source"):
     for function in bannedFunctions:
         deleteDeclarations("function_signature_item", function)
@@ -190,6 +196,11 @@ with chdir("source"):
             f"$_::{function}($$$);",
         ], "expression_statement")
         removeSymbolImports(function)
+
+    for struct in bannedStructs:
+        deleteDeclarations("struct_item", struct)
+        deleteDeclarations("impl_item", struct, "type")
+        removeSymbolImports(struct)
 
     nullifyExpressions([
         "telemetry::event!($$$)",
