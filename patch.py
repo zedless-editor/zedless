@@ -34,6 +34,19 @@ def deletePatterns(target, language, patterns, selector=None):
         print("delete", pattern)
         editAst(target, language, pattern, "", selector)
 
+def deletePatternsAdvanced(target, language, kind, patterns):
+    print("delete advanced", kind)
+    editAstAdvanced(
+        target,
+        language,
+        [
+            { "kind": kind },
+            { "any": patterns }
+        ],
+        "",
+        mode="all"
+    )
+
 def deleteDeclarations(kind, name, identifierField="name"):
     print("delete declarations:", kind, name)
     editAstAdvanced(
