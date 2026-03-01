@@ -208,6 +208,7 @@ bannedFunctions = [
 
 bannedStructs = [
     "AiUpsellCard",
+    "EditPredictionOnboarding",
     "LlmApiToken",
     "SystemSpecs",
     "Telemetry",
