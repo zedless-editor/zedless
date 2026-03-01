@@ -46,7 +46,7 @@ def deleteDeclarations(kind, name, identifierField="name"):
             {
                 "has": {
                     "field": identifierField,
-                    "pattern": name
+                    "regex": f"^{name}$"
                 }
             }
         ],
