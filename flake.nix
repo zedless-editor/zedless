@@ -11,7 +11,9 @@
     devShells.${system}.default = pkgs.mkShell {
       nativeBuildInputs = with pkgs; [
         ast-grep
-        python3
+        (python3.withPackages (ps: [
+          ps.toml
+        ]))
       ];
     };
   };
