@@ -18,7 +18,36 @@ def deletePatterns(target, language, patterns, selector=None):
         print("delete", pattern)
         editAst(target, language, pattern, "", selector)
 
+def removeSymbolImports(target, language, symbol):
+    print("remove imports for symbol", symbol)
+    editAst(
+        "crates/",
+        "rust",
+        f"use $CRATE::{{$$$BEFORE, {function}, $$$AFTER}};",
+        f"use $CRATE::{{$$$BEFORE, $$$AFTER}};",
+        "use_declaration"
+    )
+
+bannedPublicFunctions = [
+    "send_telemetry",
+]
+
 with chdir("source"):
+    for function in bannedPublicFunctions:
+        deletePatterns("crates/", "rust", [
+            f"pub fn {function}($$$) -> $_;",
+            f"pub fn {function}($$$);",
+        ], "function_signature_item")
+        deletePatterns("crates/", "rust", [
+            f"pub fn {function}($$$) -> $_ {{$$$}}",
+            f"pub fn {function}($$$) {{$$$}}",
+        ], "function_item")
+        deletePatterns("crates/", "rust", [
+            f"{function}($$$);",
+            f"$_::{function}($$$);",
+        ], "expression_statement")
+        removeSymbolImports("crates/", "rust", function)
+
     deletePatterns("crates/", "rust", [
         "telemetry::event!($$$);",
     ])
