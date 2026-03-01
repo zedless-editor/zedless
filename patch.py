@@ -209,6 +209,20 @@ with chdir("source"):
             f"{function}($$$);",
             f"$_::{function}($$$);",
         ], "expression_statement")
+        deletePatternsAdvanced("crates/", "rust", "expression_statement", [
+            {
+                "has": {
+                    "kind": "call_expression",
+                    "has": {
+                        "kind": "field_expression",
+                        "has": {
+                            "kind": "field_identifier",
+                            "regex": f"^{function}$"
+                        }
+                    }
+                }
+            }
+        ])
         removeSymbolImports(function)
 
     for struct in bannedStructs:
