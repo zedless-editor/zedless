@@ -28,6 +28,18 @@ def removeSymbolImports(target, language, symbol):
         "use_declaration"
     )
 
+def nullifyExpressions(target, language, patterns, empty, deleteStatements=False):
+    if deleteStatements:
+        deletePatterns(target, language, [f"{p};" for p in patterns])
+    for pattern in patterns:
+        print("nullify expression", pattern)
+        editAst(
+            "crates/",
+            "rust",
+            pattern,
+            empty
+        )
+
 bannedPublicFunctions = [
     "send_telemetry",
 ]
@@ -48,6 +60,6 @@ with chdir("source"):
         ], "expression_statement")
         removeSymbolImports("crates/", "rust", function)
 
-    deletePatterns("crates/", "rust", [
-        "telemetry::event!($$$);",
-    ])
+    nullifyExpressions("crates/", "rust", [
+        "telemetry::event!($$$)",
+    ], "()", deleteStatements=True)
