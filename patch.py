@@ -34,6 +34,33 @@ def deletePatterns(target, language, patterns, selector=None):
         print("delete", pattern)
         editAst(target, language, pattern, "", selector)
 
+def deleteDeclarations(kind, name, identifierField="name"):
+    print("delete declarations:", kind, name)
+    editAstAdvanced(
+        "crates/",
+        "rust",
+        [
+            {
+                "kind": kind
+            },
+            {
+                "has": {
+                    "field": identifierField,
+                    "pattern": name
+                }
+            }
+        ],
+        {
+            "template": "",
+            "expandStart": {
+                "any": [
+                    { "kind": "line_comment" },
+                    { "kind": "attribute_item" }
+                ]
+            }
+        },
+    )
+
 def removeSymbolImports(symbol):
     print("remove imports for symbol", symbol)
     editAst(
