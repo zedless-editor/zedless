@@ -212,6 +212,7 @@ bannedStructs = [
     "Telemetry",
     "TelemetrySettings",
     "TelemetryState",
+    "ZedAiOnboarding",
 ]
 
 bannedArguments = [
