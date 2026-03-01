@@ -76,12 +76,20 @@ def deleteDeclarations(kind, name, identifierField="name"):
 
 def removeSymbolImports(symbol):
     print("remove imports for symbol", symbol)
-    editAst(
+    editAstAdvanced(
         "crates/",
         "rust",
-        f"use $CRATE::{{$$$BEFORE, {symbol}, $$$AFTER}};",
-        f"use $CRATE::{{$$$BEFORE, $$$AFTER}};",
-        "use_declaration"
+        [
+            {
+                "inside": { "kind": "use_list" },
+                "kind": "identifier",
+                "pattern": symbol
+            }
+        ],
+        {
+            "template": "",
+            "expandEnd": { "regex": "," }
+        }
     )
     deletePatterns("crates/", "rust", [
         f"use $CRATE::{symbol};"
