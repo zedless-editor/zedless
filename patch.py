@@ -179,6 +179,7 @@ def removeExprArguments(string):
 
 bannedFunctions = [
     "send_telemetry",
+    "telemetry",
 ]
 
 bannedStructs = [
