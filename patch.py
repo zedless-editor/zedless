@@ -205,6 +205,10 @@ bannedStructs = [
     "TelemetryState",
 ]
 
+bannedArguments = [
+    "telemetry",
+]
+
 with chdir("source"):
     for function in bannedFunctions:
         deleteDeclarations("function_signature_item", function)
@@ -234,12 +238,13 @@ with chdir("source"):
         deleteDeclarations("impl_item", struct, "type")
         removeSymbolImports(struct)
 
+    for arg in bannedArguments:
+        removeFieldsInDeclarations(arg)
+        removeExprArguments(arg)
+
     nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True)
-
-    removeFieldsInDeclarations("telemetry")
-    removeExprArguments("telemetry")
 
     deletePatterns("crates/", "rust", [
         "let system_id = $_;",
