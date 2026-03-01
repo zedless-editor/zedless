@@ -1,4 +1,5 @@
 from contextlib import chdir
+from json import dumps
 from subprocess import run
 
 def editAst(target, language, pattern, rewrite, selector=None):
@@ -11,6 +12,21 @@ def editAst(target, language, pattern, rewrite, selector=None):
     ]
     if selector:
         args.extend(["--selector", selector])
+    run(args + [target])
+
+def editAstAdvanced(target, language, rules, rewrite, mode="all"):
+    args = [
+        "ast-grep", "scan", "--update-all",
+        "--inline-rules", dumps({
+            "id": "inline",
+            "language": language,
+            "rule": {
+                mode: rules
+            },
+            "fix": rewrite
+        }),
+        "--color", "never"
+    ]
     run(args + [target])
 
 def deletePatterns(target, language, patterns, selector=None):
