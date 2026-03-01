@@ -27,6 +27,9 @@ def removeSymbolImports(symbol):
         f"use $CRATE::{{$$$BEFORE, $$$AFTER}};",
         "use_declaration"
     )
+    deletePatterns("crates/", "rust", [
+        f"use $CRATE::{symbol};"
+    ], selector="use_declaration")
 
 def nullifyExpressions(patterns, empty, deleteStatements=False):
     if deleteStatements:
