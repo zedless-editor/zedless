@@ -204,6 +204,8 @@ bannedFunctions = [
     "send_telemetry",
     "set_authenticated_user_info",
     "telemetry",
+    "telemetry_report_accepted_edits",
+    "telemetry_report_rejected_edits",
 ]
 
 bannedStructs = [
