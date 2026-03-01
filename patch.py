@@ -206,6 +206,7 @@ bannedStructs = [
 ]
 
 bannedArguments = [
+    "llm_api_token",
     "telemetry",
 ]
 
