@@ -205,3 +205,6 @@ with chdir("source"):
     nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True)
+
+    removeFieldsInDeclarations("telemetry")
+    removeExprArguments("telemetry")
