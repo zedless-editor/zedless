@@ -18,7 +18,7 @@ def deletePatterns(target, language, patterns, selector=None):
         print("delete", pattern)
         editAst(target, language, pattern, "", selector)
 
-def removeSymbolImports(target, language, symbol):
+def removeSymbolImports(symbol):
     print("remove imports for symbol", symbol)
     editAst(
         "crates/",
@@ -28,9 +28,9 @@ def removeSymbolImports(target, language, symbol):
         "use_declaration"
     )
 
-def nullifyExpressions(target, language, patterns, empty, deleteStatements=False):
+def nullifyExpressions(patterns, empty, deleteStatements=False):
     if deleteStatements:
-        deletePatterns(target, language, [f"{p};" for p in patterns])
+        deletePatterns("crates/", "rust", [f"{p};" for p in patterns])
     for pattern in patterns:
         print("nullify expression", pattern)
         editAst(
@@ -58,8 +58,8 @@ with chdir("source"):
             f"{function}($$$);",
             f"$_::{function}($$$);",
         ], "expression_statement")
-        removeSymbolImports("crates/", "rust", function)
+        removeSymbolImports(function)
 
-    nullifyExpressions("crates/", "rust", [
+    nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True)
