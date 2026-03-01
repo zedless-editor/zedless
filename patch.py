@@ -23,7 +23,7 @@ def removeSymbolImports(symbol):
     editAst(
         "crates/",
         "rust",
-        f"use $CRATE::{{$$$BEFORE, {function}, $$$AFTER}};",
+        f"use $CRATE::{{$$$BEFORE, {symbol}, $$$AFTER}};",
         f"use $CRATE::{{$$$BEFORE, $$$AFTER}};",
         "use_declaration"
     )
