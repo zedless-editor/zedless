@@ -322,6 +322,11 @@ with chdir("source"):
     ], "()", deleteStatements=True)
 
     deletePatterns("crates/", "rust", [
+        "if let $_ = telemetry { $$$ }",
+        "if let $_ = telemetry.$_() { $$$ }",
+    ])
+
+    deletePatterns("crates/", "rust", [
         "let system_id = $_;",
         "let metrics_id = $_;",
         "if let $_ = system_id { $$$ }",
