@@ -97,8 +97,19 @@ def removeSymbolImports(symbol):
         [
             {
                 "inside": { "kind": "use_list" },
-                "kind": "identifier",
-                "pattern": symbol
+                "any": [
+                    {
+                        "kind": "identifier",
+                        "pattern": symbol
+                    },
+                    {
+                        "kind": "scoped_identifier",
+                        "has": {
+                            "field": "name",
+                            "pattern": symbol
+                        }
+                    }
+                ],
             }
         ],
         {
