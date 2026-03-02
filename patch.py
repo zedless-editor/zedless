@@ -275,6 +275,7 @@ with chdir("source"):
             print("delete crate:", crate)
             run(["rm", "-rf", f"crates/{crate}/"])
 
+        deletePatterns("crates/", "rust", [f"use {crate}::$_;" for crate in cratesToDelete])
         with editTomlDocument("Cargo.toml") as (data, write):
             data["workspace"]["members"] = list(filter(
                 lambda m: m.removeprefix("crates/") not in cratesToDelete,
