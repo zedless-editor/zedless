@@ -234,6 +234,7 @@ bannedModules = [
 ]
 
 bannedFunctions = [
+    "register_zed_web_search_provider",
     "report_discovered_project_type_events",
     "send_telemetry",
     "set_authenticated_user_info",
