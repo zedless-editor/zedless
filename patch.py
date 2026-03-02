@@ -1,6 +1,21 @@
-from contextlib import chdir
+from contextlib import chdir, contextmanager
+from glob import glob
 from json import dumps
+from os.path import exists
 from subprocess import run
+
+import toml
+
+@contextmanager
+def editTomlDocument(file):
+    def callback(v):
+        with open(file, "w") as f:
+            toml.dump(v, f)
+    value = None
+    with open(file, "r") as f:
+        value = toml.load(f)
+    if value:
+        yield value, callback
 
 def editAst(target, language, pattern, rewrite, selector=None):
     args = [
@@ -199,6 +214,10 @@ def removeExprArguments(string):
         mode="all"
     )
 
+bannedCrates = [
+    "telemetry"
+]
+
 bannedFunctions = [
     "report_discovered_project_type_events",
     "send_telemetry",
@@ -225,6 +244,36 @@ bannedArguments = [
 ]
 
 with chdir("source"):
+    cratesToDelete = []
+    for crate in bannedCrates:
+        if exists(f"crates/{crate}"):
+            cratesToDelete.append(crate)
+
+    if len(cratesToDelete) > 0:
+        for crate in cratesToDelete:
+            print("delete crate:", crate)
+            run(["rm", "-rf", f"crates/{crate}/"])
+
+        with editTomlDocument("Cargo.toml") as (data, write):
+            data["workspace"]["members"] = list(filter(
+                lambda m: m.removeprefix("crates/") not in cratesToDelete,
+                data["workspace"]["members"]
+            ))
+            for crate in cratesToDelete:
+                if crate in data["workspace"]["dependencies"]:
+                    del data["workspace"]["dependencies"][crate]
+                for prof in data["profile"]:
+                    if "package" in data["profile"][prof] and crate in data["profile"][prof]["package"]:
+                        del data["profile"][prof]["package"][crate]
+            write(data)
+
+        for manifest in glob("crates/*/Cargo.toml"):
+            with editTomlDocument(manifest) as (data, write):
+                for crate in cratesToDelete:
+                    if "dependencies" in data and crate in data["dependencies"]:
+                        del data["dependencies"][crate]
+                write(data)
+
     for function in bannedFunctions:
         deleteDeclarations("function_signature_item", function)
         deleteDeclarations("function_item", function)
