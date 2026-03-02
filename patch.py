@@ -229,6 +229,10 @@ bannedCrates = [
     "telemetry"
 ]
 
+bannedModules = [
+    ("web_search_providers", "cloud")
+]
+
 bannedFunctions = [
     "report_discovered_project_type_events",
     "send_telemetry",
@@ -284,6 +288,13 @@ with chdir("source"):
                     if "dependencies" in data and crate in data["dependencies"]:
                         del data["dependencies"][crate]
                 write(data)
+
+    for (crate, mod) in bannedModules:
+        print("delete module:", crate, mod)
+        deletePatterns(f"crates/{crate}/", "rust", [
+            f"mod {mod};"
+        ])
+        run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
 
     for function in bannedFunctions:
         deleteDeclarations("function_signature_item", function)
