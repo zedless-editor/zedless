@@ -238,6 +238,7 @@ bannedModules = [
 ]
 
 bannedFunctions = [
+    "download_server_binary_locally",
     "register_zed_web_search_provider",
     "render_telemetry_section",
     "report_discovered_project_type_events",
