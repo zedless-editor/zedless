@@ -344,3 +344,7 @@ with chdir("source"):
         "if let $_ = system_id { $$$ }",
         "if let $_ = metrics_id { $$$ }",
     ])
+
+    deletePatterns("crates/web_search_providers/", "rust", [
+        "register_zed_web_search_provider($$$)"
+    ])
