@@ -344,7 +344,11 @@ with chdir("source"):
     deletePatterns("crates/", "rust", [
         "if let $_ = telemetry { $$$ }",
         "if let $_ = telemetry.$_() { $$$ }",
+        "telemetry.$_($$$);",
+        "let (telemetry, is_via_ssh) = { $$$ };"
     ])
+    
+    deleteDeclarations("let_declaration", "telemetry", "pattern")
 
     deletePatterns("crates/", "rust", [
         "let system_id = $_;",
