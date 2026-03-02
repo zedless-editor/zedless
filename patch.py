@@ -178,10 +178,34 @@ def removeExprArguments(string):
                 {
                     "kind": "field_expression",
                     "pattern": f"$_.{string}"
-                }
-            ],
-            "stopBy": "end"
+                },
+                {
+                    "kind": "field_expression",
+                    "pattern": f"{string}.$_"
+                },
+                {
+                    "kind": "field_expression",
+                    "pattern": f"$_.{string}().$_"
+                },
+            ]
         }
+    }
+    matchingSome = {
+        "kind": "call_expression",
+        "pattern": "Some($_)",
+        "has": {
+            "kind": "arguments",
+            "has": {
+                "any": [
+                    matchingIdentifier,
+                    matchingCallExpression
+                ]
+            }
+        }
+    }
+    matchingReferenceExpression = {
+        "kind": "reference_expression",
+        "has": matchingIdentifier
     }
     editAstAdvanced(
         "crates/", "rust",
@@ -198,6 +222,8 @@ def removeExprArguments(string):
                 "any": [
                     matchingIdentifier,
                     matchingCallExpression,
+                    matchingSome,
+                    matchingReferenceExpression,
                     {
                         "kind": "shorthand_field_initializer",
                         "has": matchingIdentifier
@@ -208,6 +234,8 @@ def removeExprArguments(string):
                             "any": [
                                 matchingIdentifier,
                                 matchingCallExpression,
+                                matchingSome,
+                                matchingReferenceExpression,
                                 {
                                     "kind": "field_identifier",
                                     "regex": f"^{string}$"
