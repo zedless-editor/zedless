@@ -226,8 +226,10 @@ def removeExprArguments(string):
     )
 
 bannedCrates = [
+    "ai_onboarding",
     "auto_update",
     "auto_update_ui",
+    "feedback",
     "telemetry",
 ]
 
