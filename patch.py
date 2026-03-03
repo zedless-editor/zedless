@@ -7,6 +7,9 @@ from config import CONFIG
 
 import toml
 
+import match
+import match.rust
+
 @contextmanager
 def editTomlDocument(file):
     def callback(v):
