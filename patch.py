@@ -93,6 +93,19 @@ def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
         },
     )
 
+def unimplementFunction(name, target="crates/"):
+    editAstAdvanced(
+        target,
+        "rust",
+        [
+            {
+                "kind": "block",
+                "inside": match.rust.functionDefinition(name)
+            }
+        ],
+        "{ unimplemented!() }"
+    )
+
 def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
     editAstAdvanced(
@@ -355,3 +368,6 @@ with chdir("source"):
     deletePatterns("crates/web_search_providers/", "rust", [
         "register_zed_web_search_provider($$$)"
     ])
+
+    unimplementFunction("download_server_binary_locally", target="crates/remote_connection/")
+    unimplementFunction("get_download_url", target="crates/remote_connection/")
