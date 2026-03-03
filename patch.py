@@ -3,6 +3,7 @@ from glob import glob
 from json import dumps
 from os.path import exists
 from subprocess import run
+from config import CONFIG
 
 import toml
 
@@ -256,50 +257,9 @@ def removeExprArguments(string, target="crates/"):
         mode="all"
     )
 
-bannedCrates = [
-    "ai_onboarding",
-    "auto_update",
-    "auto_update_ui",
-    "feedback",
-    "telemetry",
-]
-
-bannedModules = [
-    ("web_search_providers", "cloud")
-]
-
-bannedFunctions = [
-    "download_server_binary_locally",
-    "register_zed_web_search_provider",
-    "render_telemetry_section",
-    "report_discovered_project_type_events",
-    "send_telemetry",
-    "set_authenticated_user_info",
-    "telemetry",
-    "telemetry_report_accepted_edits",
-    "telemetry_report_rejected_edits",
-    "telemetry_settings_content",
-]
-
-bannedStructs = [
-    "AiUpsellCard",
-    "EditPredictionOnboarding",
-    "LlmApiToken",
-    "SystemSpecs",
-    "Telemetry",
-    "TelemetrySettings",
-    "TelemetryState",
-    "ZedAiOnboarding",
-]
-
-bannedArguments = [
-    "llm_api_token",
-    "telemetry",
-]
-
 with chdir("source"):
     cratesToDelete = []
-    for crate in bannedCrates:
+    for crate in CONFIG.bannedCrates:
         if exists(f"crates/{crate}"):
             cratesToDelete.append(crate)
 
@@ -329,44 +289,45 @@ with chdir("source"):
                         del data["dependencies"][crate]
                 write(data)
 
-    for (crate, mod) in bannedModules:
+    for (crate, mod) in CONFIG.bannedModules:
         print("delete module:", crate, mod)
         deletePatterns(f"crates/{crate}/", "rust", [
             f"mod {mod};"
         ])
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
 
-    for function in bannedFunctions:
-        deleteDeclarations("function_signature_item", function)
-        deleteDeclarations("function_item", function)
-        deletePatterns("crates/", "rust", [
-            f"{function}($$$);",
-            f"$_::{function}($$$);",
-        ], "expression_statement")
-        deletePatternsAdvanced("crates/", "rust", "expression_statement", [
-            {
-                "has": {
-                    "kind": "call_expression",
+    for (target, cfg) in CONFIG.perDirectory.items():
+        for function in cfg.bannedFunctions:
+            deleteDeclarations("function_signature_item", function, target=target)
+            deleteDeclarations("function_item", function, target=target)
+            deletePatterns(target, "rust", [
+                f"{function}($$$);",
+                f"$_::{function}($$$);",
+            ], "expression_statement")
+            deletePatternsAdvanced(target, "rust", "expression_statement", [
+                {
                     "has": {
-                        "kind": "field_expression",
+                        "kind": "call_expression",
                         "has": {
-                            "kind": "field_identifier",
-                            "regex": f"^{function}$"
+                            "kind": "field_expression",
+                            "has": {
+                                "kind": "field_identifier",
+                                "regex": f"^{function}$"
+                            }
                         }
                     }
                 }
-            }
-        ])
-        removeSymbolImports(function)
-
-    for struct in bannedStructs:
-        deleteDeclarations("struct_item", struct)
-        deleteDeclarations("impl_item", struct, "type")
-        removeSymbolImports(struct)
-
-    for arg in bannedArguments:
-        removeFieldsInDeclarations(arg)
-        removeExprArguments(arg)
+            ])
+            removeSymbolImports(function, target=target)
+    
+        for struct in cfg.bannedStructs:
+            deleteDeclarations("struct_item", struct, target=target)
+            deleteDeclarations("impl_item", struct, identifierField="type", target=target)
+            removeSymbolImports(struct)
+    
+        for arg in cfg.bannedArguments:
+            removeFieldsInDeclarations(arg, target=target)
+            removeExprArguments(arg, target=target)
 
     nullifyExpressions([
         "telemetry::event!($$$)",
