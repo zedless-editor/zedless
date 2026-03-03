@@ -273,6 +273,18 @@ def removeExprArguments(string, target="crates/"):
         mode="all"
     )
 
+def removeUiElement(elem, builderMethod="child", target="crates/"):
+    editAstAdvanced(
+        target,
+        "rust",
+        [
+            elem
+            | match.rust.insideMethodCall("child")
+        ],
+        "div()",
+        mode="any"
+    )
+
 with chdir("source"):
     cratesToDelete = []
     for crate in CONFIG.bannedCrates:
@@ -364,6 +376,7 @@ with chdir("source"):
         "if let $_ = system_id { $$$ }",
         "if let $_ = metrics_id { $$$ }",
     ])
+    removeUiElement(match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/")
 
     deletePatterns("crates/web_search_providers/", "rust", [
         "register_zed_web_search_provider($$$)"
