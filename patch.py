@@ -62,10 +62,10 @@ def deletePatternsAdvanced(target, language, kind, patterns):
         mode="all"
     )
 
-def deleteDeclarations(kind, name, identifierField="name"):
+def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
     print("delete declarations:", kind, name)
     editAstAdvanced(
-        "crates/",
+        target,
         "rust",
         [
             {
@@ -89,10 +89,10 @@ def deleteDeclarations(kind, name, identifierField="name"):
         },
     )
 
-def removeSymbolImports(symbol):
+def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
     editAstAdvanced(
-        "crates/",
+        target,
         "rust",
         [
             {
@@ -134,10 +134,12 @@ def nullifyExpressions(patterns, empty, deleteStatements=False):
             empty
         )
 
-def removeFieldsInDeclarations(identifier):
+def removeFieldsInDeclarations(identifier, target="crates/"):
     print("remove fields and parameters in declarations:", identifier)
     editAstAdvanced(
-        "crates/", "rust", [
+        target,
+        "rust",
+        [
             {
                 "all": [
                     { "kind": "field_declaration" },
@@ -164,7 +166,7 @@ def removeFieldsInDeclarations(identifier):
         mode="any"
     )
 
-def removeExprArguments(string):
+def removeExprArguments(string, target="crates/"):
     print("remove expression arguments:", string)
     matchingIdentifier = {
         "kind": "identifier",
@@ -208,7 +210,8 @@ def removeExprArguments(string):
         "has": matchingIdentifier
     }
     editAstAdvanced(
-        "crates/", "rust",
+        target,
+        "rust",
         [
             {
                 "inside": {
