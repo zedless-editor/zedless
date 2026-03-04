@@ -10,6 +10,7 @@ class PerDirectoryConfig:
 class Config:
     bannedCrates: list[str]
     bannedModules: list[tuple[str,str]]
+    bannedLanguageModelProviders: list[str]
     perDirectory: dict[str, PerDirectoryConfig]
 
 CONFIG = Config()
@@ -23,6 +24,20 @@ CONFIG.bannedCrates = [
 
 CONFIG.bannedModules = [
     ("web_search_providers", "cloud")
+]
+
+CONFIG.bannedLanguageModelProviders = [
+    "anthropic",
+    "bedrock",
+    "cloud",
+    "copilot_chat",
+    "deepseek",
+    "google",
+    "lmstudio",
+    "mistral",
+    "open_router",
+    "vercel",
+    "x_ai",
 ]
 
 CONFIG.perDirectory = {

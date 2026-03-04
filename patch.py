@@ -332,6 +332,14 @@ with chdir("source"):
             f"mod {mod};"
         ]))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
+    
+    for provider in CONFIG.bannedLanguageModelProviders:
+        print("delete language model provider:", provider)
+        rules.extend(deletePatterns(f"crates/language_models/", "rust", [
+            f"pub mod {provider};",
+        ]))
+        run(["rm", "-f", f"crates/language_models/src/provider/{provider}.rs"])
+        
 
     for (target, cfg) in CONFIG.perDirectory.items():
         for function in cfg.bannedFunctions:
