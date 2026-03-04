@@ -21,18 +21,6 @@ def editTomlDocument(file):
     if value:
         yield value, callback
 
-def editAst(target, language, pattern, rewrite, selector=None):
-    args = [
-        "ast-grep", "run", "--update-all",
-        "--lang", language,
-        "--pattern", pattern,
-        "--rewrite", rewrite,
-        "--color", "never"
-    ]
-    if selector:
-        args.extend(["--selector", selector])
-    run(args + [target])
-
 def editAstAdvanced(target, language, rules, rewrite, mode="all"):
     args = [
         "ast-grep", "scan", "--update-all",
@@ -49,9 +37,22 @@ def editAstAdvanced(target, language, rules, rewrite, mode="all"):
     run(args + [target])
 
 def deletePatterns(target, language, patterns, selector=None):
-    for pattern in patterns:
-        print("delete", pattern)
-        editAst(target, language, pattern, "", selector)
+    rule = {
+        "any": [
+            { "pattern": pattern }
+            for pattern in patterns
+        ]
+    }
+    if selector:
+        rule.update({
+            "kind": selector
+        })
+    editAstAdvanced(
+        target,
+        language,
+        [rule],
+        ""
+    )
 
 def deletePatternsAdvanced(target, language, kind, patterns):
     print("delete advanced", kind)
@@ -142,14 +143,15 @@ def removeSymbolImports(symbol, target="crates/"):
 def nullifyExpressions(patterns, empty, deleteStatements=False):
     if deleteStatements:
         deletePatterns("crates/", "rust", [f"{p};" for p in patterns])
-    for pattern in patterns:
-        print("nullify expression", pattern)
-        editAst(
-            "crates/",
-            "rust",
-            pattern,
-            empty
-        )
+    editAstAdvanced(
+        "crates/",
+        "rust",
+        [
+            { "pattern": pattern }
+            for pattern in patterns
+        ],
+        empty
+    )
 
 def removeFieldsInDeclarations(identifier, target="crates/"):
     print("remove fields and parameters in declarations:", identifier)
