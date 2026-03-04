@@ -2,6 +2,7 @@ from contextlib import chdir, contextmanager
 from glob import glob
 from json import dumps
 from os.path import exists
+from pathlib import PurePosixPath
 from subprocess import run
 from config import CONFIG
 
@@ -25,18 +26,19 @@ def editAstAdvanced(target, language, rules, rewrite, mode="all"):
     yield {
         "id": "inline",
         "language": language,
+        "files": [str(PurePosixPath(target, "**/*"))],
         "rule": {
             mode: rules
         },
         "fix": rewrite
     }
 
-def runRules(target, rules):
+def runRules(rules):
     run([
         "ast-grep", "scan", "--update-all",
         "--inline-rules", "\n---\n".join([dumps(r) for r in rules]),
         "--color", "never",
-        target
+        "."
     ])
 
 def deletePatterns(target, language, patterns, selector=None):
@@ -391,4 +393,4 @@ with chdir("source"):
 
     rules.extend(unimplementFunction("download_server_binary_locally", target="crates/remote_connection/"))
     rules.extend(unimplementFunction("get_download_url", target="crates/remote_connection/"))
-    runRules("crates/", rules)
+    runRules(rules)
