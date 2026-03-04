@@ -22,19 +22,22 @@ def editTomlDocument(file):
         yield value, callback
 
 def editAstAdvanced(target, language, rules, rewrite, mode="all"):
-    args = [
+    yield {
+        "id": "inline",
+        "language": language,
+        "rule": {
+            mode: rules
+        },
+        "fix": rewrite
+    }
+
+def runRules(target, rules):
+    run([
         "ast-grep", "scan", "--update-all",
-        "--inline-rules", dumps({
-            "id": "inline",
-            "language": language,
-            "rule": {
-                mode: rules
-            },
-            "fix": rewrite
-        }),
-        "--color", "never"
-    ]
-    run(args + [target])
+        "--inline-rules", "\n---\n".join([dumps(r) for r in rules]),
+        "--color", "never",
+        target
+    ])
 
 def deletePatterns(target, language, patterns, selector=None):
     rule = {
@@ -47,7 +50,7 @@ def deletePatterns(target, language, patterns, selector=None):
         rule.update({
             "kind": selector
         })
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         language,
         [rule],
@@ -56,7 +59,7 @@ def deletePatterns(target, language, patterns, selector=None):
 
 def deletePatternsAdvanced(target, language, kind, patterns):
     print("delete advanced", kind)
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         language,
         [
@@ -69,7 +72,7 @@ def deletePatternsAdvanced(target, language, kind, patterns):
 
 def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
     print("delete declarations:", kind, name)
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -95,7 +98,7 @@ def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
     )
 
 def unimplementFunction(name, target="crates/"):
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -109,7 +112,7 @@ def unimplementFunction(name, target="crates/"):
 
 def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -135,15 +138,15 @@ def removeSymbolImports(symbol, target="crates/"):
             "expandEnd": { "regex": "," }
         }
     )
-    deletePatterns("crates/", "rust", [
+    yield from deletePatterns("crates/", "rust", [
         f"use $CRATE::{symbol};",
         f"pub use $CRATE::{symbol};",
     ], selector="use_declaration")
 
 def nullifyExpressions(patterns, empty, deleteStatements=False):
     if deleteStatements:
-        deletePatterns("crates/", "rust", [f"{p};" for p in patterns])
-    editAstAdvanced(
+        yield from deletePatterns("crates/", "rust", [f"{p};" for p in patterns])
+    yield from editAstAdvanced(
         "crates/",
         "rust",
         [
@@ -155,7 +158,7 @@ def nullifyExpressions(patterns, empty, deleteStatements=False):
 
 def removeFieldsInDeclarations(identifier, target="crates/"):
     print("remove fields and parameters in declarations:", identifier)
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -228,7 +231,7 @@ def removeExprArguments(string, target="crates/"):
         "kind": "reference_expression",
         "has": matchingIdentifier
     }
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -276,7 +279,7 @@ def removeExprArguments(string, target="crates/"):
     )
 
 def removeUiElement(elem, builderMethod="child", target="crates/"):
-    editAstAdvanced(
+    yield from editAstAdvanced(
         target,
         "rust",
         [
@@ -288,6 +291,8 @@ def removeUiElement(elem, builderMethod="child", target="crates/"):
     )
 
 with chdir("source"):
+    rules = []
+
     cratesToDelete = []
     for crate in CONFIG.bannedCrates:
         if exists(f"crates/{crate}"):
@@ -298,7 +303,7 @@ with chdir("source"):
             print("delete crate:", crate)
             run(["rm", "-rf", f"crates/{crate}/"])
 
-        deletePatterns("crates/", "rust", [f"use {crate}::$_;" for crate in cratesToDelete])
+        rules.extend(deletePatterns("crates/", "rust", [f"use {crate}::$_;" for crate in cratesToDelete]))
         with editTomlDocument("Cargo.toml") as (data, write):
             data["workspace"]["members"] = list(filter(
                 lambda m: m.removeprefix("crates/") not in cratesToDelete,
@@ -321,20 +326,20 @@ with chdir("source"):
 
     for (crate, mod) in CONFIG.bannedModules:
         print("delete module:", crate, mod)
-        deletePatterns(f"crates/{crate}/", "rust", [
+        rules.extend(deletePatterns(f"crates/{crate}/", "rust", [
             f"mod {mod};"
-        ])
+        ]))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
 
     for (target, cfg) in CONFIG.perDirectory.items():
         for function in cfg.bannedFunctions:
-            deleteDeclarations("function_signature_item", function, target=target)
-            deleteDeclarations("function_item", function, target=target)
-            deletePatterns(target, "rust", [
+            rules.extend(deleteDeclarations("function_signature_item", function, target=target))
+            rules.extend(deleteDeclarations("function_item", function, target=target))
+            rules.extend(deletePatterns(target, "rust", [
                 f"{function}($$$);",
                 f"$_::{function}($$$);",
-            ], "expression_statement")
-            deletePatternsAdvanced(target, "rust", "expression_statement", [
+            ], "expression_statement"))
+            rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
                     "has": {
                         "kind": "call_expression",
@@ -347,42 +352,43 @@ with chdir("source"):
                         }
                     }
                 }
-            ])
-            removeSymbolImports(function, target=target)
-    
+            ]))
+            rules.extend(removeSymbolImports(function, target=target))
+
         for struct in cfg.bannedStructs:
-            deleteDeclarations("struct_item", struct, target=target)
-            deleteDeclarations("impl_item", struct, identifierField="type", target=target)
-            removeSymbolImports(struct)
-    
+            rules.extend(deleteDeclarations("struct_item", struct, target=target))
+            rules.extend(deleteDeclarations("impl_item", struct, identifierField="type", target=target))
+            rules.extend(removeSymbolImports(struct))
+
         for arg in cfg.bannedArguments:
-            removeFieldsInDeclarations(arg, target=target)
-            removeExprArguments(arg, target=target)
+            rules.extend(removeFieldsInDeclarations(arg, target=target))
+            rules.extend(removeExprArguments(arg, target=target))
 
-    nullifyExpressions([
+    rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
-    ], "()", deleteStatements=True)
+    ], "()", deleteStatements=True))
 
-    deletePatterns("crates/", "rust", [
+    rules.extend(deletePatterns("crates/", "rust", [
         "if let $_ = telemetry { $$$ }",
         "if let $_ = telemetry.$_() { $$$ }",
         "telemetry.$_($$$);",
         "let (telemetry, is_via_ssh) = { $$$ };"
-    ])
-    
-    deleteDeclarations("let_declaration", "telemetry", "pattern")
+    ]))
 
-    deletePatterns("crates/", "rust", [
+    rules.extend(deleteDeclarations("let_declaration", "telemetry", "pattern"))
+
+    rules.extend(deletePatterns("crates/", "rust", [
         "let system_id = $_;",
         "let metrics_id = $_;",
         "if let $_ = system_id { $$$ }",
         "if let $_ = metrics_id { $$$ }",
-    ])
-    removeUiElement(match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/")
+    ]))
+    rules.extend(removeUiElement(match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
 
-    deletePatterns("crates/web_search_providers/", "rust", [
+    rules.extend(deletePatterns("crates/web_search_providers/", "rust", [
         "register_zed_web_search_provider($$$)"
-    ])
+    ]))
 
-    unimplementFunction("download_server_binary_locally", target="crates/remote_connection/")
-    unimplementFunction("get_download_url", target="crates/remote_connection/")
+    rules.extend(unimplementFunction("download_server_binary_locally", target="crates/remote_connection/"))
+    rules.extend(unimplementFunction("get_download_url", target="crates/remote_connection/"))
+    runRules("crates/", rules)
