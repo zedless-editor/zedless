@@ -33,6 +33,15 @@ def editAstAdvanced(target, language, rules, rewrite, mode="all"):
         "fix": rewrite
     }
 
+def mkRule(target, language, rule, fix):
+    yield {
+        "id": "inline",
+        "language": language,
+        "files": [str(PurePosixPath(target, "**/*")) if target.endswith("/") else target],
+        "rule": rule,
+        "fix": fix
+    }
+
 def runRules(rules):
     run([
         "ast-grep", "scan", "--update-all",
@@ -332,14 +341,92 @@ with chdir("source"):
             f"mod {mod};"
         ]))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
-    
+
     for provider in CONFIG.bannedLanguageModelProviders:
-        print("delete language model provider:", provider)
-        rules.extend(deletePatterns(f"crates/language_models/", "rust", [
-            f"pub mod {provider};",
+        print("delete language model provider:", provider.structPrefix)
+        run(["rm", "-f", f"crates/language_models/src/provider/{provider.module}.rs"])
+        rules.extend(deletePatterns("crates/language_models/", "rust", [
+            f"pub mod {provider.module};",
+            f"use crate::provider::{provider.module}::$_;",
+            f"pub use crate::provider::{provider.module}::$_;",
         ]))
-        run(["rm", "-f", f"crates/language_models/src/provider/{provider}.rs"])
-        
+        rules.extend(removeSymbolImports(provider.lmProviderStructName, target="crates/language_models/"))
+        rules.extend(removeSymbolImports(provider.settingsStructName, target="crates/language_models/"))
+        rules.extend(deletePatternsAdvanced("crates/language_models/", "rust", "expression_statement", [
+            {
+                "has": match.rust.functionCallWith(
+                    identifier={
+                        "kind": "field_expression",
+                        "pattern": "registry.register_provider"
+                    },
+                    withinArguments={
+                        "kind": "call_expression",
+                        "pattern": f"{provider.lmProviderStructName}::$_($$$)"
+                    }
+                )
+            }
+        ]))
+        rules.extend(deletePatternsAdvanced("crates/language_models/", "rust", "let_declaration", [
+            {
+                "has": {
+                    "kind": "identifier",
+                    "pattern": provider.param
+                }
+            }
+        ]))
+        rules.extend(removeFieldsInDeclarations(provider.param, target="crates/language_models/"))
+        rules.extend(removeExprArguments(provider.param, target="crates/language_models/"))
+
+    rules.extend(deleteDeclarations("struct_item", "OpenAiLanguageModelProvider", target="crates/language_models/"))
+    rules.extend(deleteDeclarations("impl_item", "OpenAiLanguageModelProvider", identifierField="type", target="crates/language_models/"))
+    rules.extend(deleteDeclarations("struct_item", "OpenAiLanguageModel", target="crates/language_models/"))
+    rules.extend(deleteDeclarations("impl_item", "OpenAiLanguageModel", identifierField="type", target="crates/language_models/"))
+    rules.extend(mkRule("crates/language_models/src/provider/open_ai.rs", "rust",
+        {
+            "any": [
+                { "kind": "struct_item" },
+                { "kind": "impl_item" },
+                { "kind": "function_item" },
+                { "kind": "mod_item" },
+            ],
+            "not": {
+                "any": [
+                    match.rust.functionDefinition("add_message_content_part"),
+                    match.rust.functionDefinition("append_message_to_response_items"),
+                    match.rust.functionDefinition("collect_tiktoken_messages"),
+                    match.rust.functionDefinition("flush_response_parts"),
+                    match.rust.functionDefinition("into_open_ai"),
+                    match.rust.functionDefinition("into_open_ai_response"),
+                    match.rust.functionDefinition("new"),
+                    match.rust.functionDefinition("map_stream"),
+                    match.rust.functionDefinition("map_event"),
+                    match.rust.functionDefinition("handle_completion"),
+                    match.rust.functionDefinition("emit_tool_calls_from_output"),
+                    match.rust.functionDefinition("token_usage_from_response_usage"),
+                    match.rust.functionDefinition("push_response_image_part"),
+                    match.rust.functionDefinition("push_response_text_part"),
+                    match.rust.functionDefinition("tool_result_output"),
+                    match.rust.implDefinition("OpenAiEventMapper"),
+                    match.rust.implDefinition("OpenAiResponseEventMapper"),
+                    match.rust.implDefinition("PendingResponseFunctionCall"),
+                    match.rust.implDefinition("RawToolCall"),
+                    match.rust.structDefinition("OpenAiEventMapper"),
+                    match.rust.structDefinition("OpenAiResponseEventMapper"),
+                    match.rust.structDefinition("PendingResponseFunctionCall"),
+                    match.rust.structDefinition("RawToolCall"),
+                ]
+            }
+        },
+        {
+            "template": "",
+            "expandStart": {
+                "any": [
+                    { "kind": "line_comment" },
+                    { "kind": "attribute_item" }
+                ]
+            }
+        }
+    ))
 
     for (target, cfg) in CONFIG.perDirectory.items():
         for function in cfg.bannedFunctions:

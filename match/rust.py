@@ -8,6 +8,27 @@ def functionCall(name):
     }
 
 
+def functionCallWith(identifier=None, withinArguments=None):
+    extraRules = []
+    if identifier:
+        extraRules.append({
+            "has": identifier
+        })
+    if withinArguments:
+        extraRules.append({
+            "has": {
+                "kind": "arguments",
+                "has": withinArguments | {
+                    "stopBy": "end"
+                }
+            }
+        })
+    return {
+        "kind": "call_expression",
+        "all": extraRules
+    }
+
+
 def functionDefinition(name):
     return {
         "kind": "function_item",
@@ -31,5 +52,23 @@ def insideMethodCall(name):
                     }
                 }
             }
+        }
+    }
+
+def implDefinition(name):
+    return {
+        "kind": "impl_item",
+        "has": {
+            "field": "type",
+            "regex": f"^{name}$"
+        }
+    }
+
+def structDefinition(name):
+    return {
+        "kind": "struct_item",
+        "has": {
+            "field": "name",
+            "regex": f"^{name}$"
         }
     }
