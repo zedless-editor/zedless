@@ -26,7 +26,7 @@ def editAstAdvanced(target, language, rules, rewrite, mode="all"):
     yield {
         "id": "inline",
         "language": language,
-        "files": [str(PurePosixPath(target, "**/*"))],
+        "files": [str(PurePosixPath(target, "**/*")) if target.endswith("/") else target],
         "rule": {
             mode: rules
         },
