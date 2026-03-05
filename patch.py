@@ -462,6 +462,20 @@ with chdir("source"):
             rules.extend(removeFieldsInDeclarations(arg, target=target))
             rules.extend(removeExprArguments(arg, target=target))
 
+        for local in cfg.bannedLocals:
+            rules.extend(deleteDeclarations("let_declaration", local, "pattern"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "any": [
+                    {
+                        "pattern": f"if {local} {{ $$$ }} else {{ $$$ELSE }}",
+                    },
+                    {
+                        "pattern": f"if {local} && $$$ {{ $$$ }} else {{ $$$ELSE }}",
+                    }
+                ],
+            }, "$$$ELSE"))
+
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True))
