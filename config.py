@@ -38,7 +38,9 @@ CONFIG.bannedCrates = [
 ]
 
 CONFIG.bannedModules = [
-    ("web_search_providers", "cloud")
+    ("web_search_providers", "cloud"),
+    ("edit_prediction", "onboarding_modal"),
+    ("title_bar", "update_version"),
 ]
 
 CONFIG.bannedLanguageModelProviders = [
