@@ -104,9 +104,16 @@ CONFIG.perDirectory = {
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
+        bannedArguments=[
+            "update_version",
+        ],
         bannedFunctions=[
             "render_connection_status",
             "render_sign_in_button",
+            "toggle_update_simulation",
+        ],
+        bannedStructs=[
+            "UpdateVersion",
         ]
     )
 }
