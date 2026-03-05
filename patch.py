@@ -115,7 +115,10 @@ def unimplementFunction(name, target="crates/"):
         [
             {
                 "kind": "block",
-                "inside": match.rust.functionDefinition(name)
+                "inside": match.rust.functionDefinition(name),
+                "not": {
+                    "pattern": "{ unimplemented!() }"
+                }
             }
         ],
         "{ unimplemented!() }"
