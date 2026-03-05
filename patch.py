@@ -341,7 +341,7 @@ with chdir("source"):
         rules.extend(deletePatterns(f"crates/{crate}/", "rust", [
             f"mod {mod};"
         ]))
-        run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"])
+        run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"] + glob(f"crates/{crate}/src/*/{mod}.rs"))
 
     for provider in CONFIG.bannedLanguageModelProviders:
         print("delete language model provider:", provider.structPrefix)
