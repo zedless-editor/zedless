@@ -86,5 +86,20 @@ CONFIG.perDirectory = {
             "llm_api_token",
             "telemetry",
         ]
+    ),
+    "crates/edit_prediction/": PerDirectoryConfig(
+        bannedArguments=[
+            "onboarding",
+            "llm_token",
+        ],
+        bannedStructs=[
+            "ZedPredictModal",
+        ]
+    ),
+    "crates/title_bar/": PerDirectoryConfig(
+        bannedFunctions=[
+            "render_connection_status",
+            "render_sign_in_button",
+        ]
     )
 }
