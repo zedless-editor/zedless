@@ -95,6 +95,11 @@ CONFIG.perDirectory = {
         bannedArguments=[
             "llm_api_token",
             "telemetry",
+        ],
+        bannedLocals=[
+            "metrics_id",
+            "system_id",
+            "telemetry",
         ]
     ),
     "crates/agent_ui/": PerDirectoryConfig(

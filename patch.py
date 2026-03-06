@@ -478,26 +478,20 @@ with chdir("source"):
                     }
                 ],
             }, "$$$ELSE"))
+            rules.extend(deletePatterns(target, "rust", [
+                f"if let $_ = {local} {{ $$$ }}",
+                f"if let $_ = {local}.$_() {{ $$$ }}",
+                f"{local}.$_($$$);",
+            ]))
 
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True))
 
     rules.extend(deletePatterns("crates/", "rust", [
-        "if let $_ = telemetry { $$$ }",
-        "if let $_ = telemetry.$_() { $$$ }",
-        "telemetry.$_($$$);",
         "let (telemetry, is_via_ssh) = { $$$ };"
     ]))
 
-    rules.extend(deleteDeclarations("let_declaration", "telemetry", "pattern"))
-
-    rules.extend(deletePatterns("crates/", "rust", [
-        "let system_id = $_;",
-        "let metrics_id = $_;",
-        "if let $_ = system_id { $$$ }",
-        "if let $_ = metrics_id { $$$ }",
-    ]))
     rules.extend(removeUiElement(match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
 
     rules.extend(deletePatterns("crates/web_search_providers/", "rust", [
