@@ -292,16 +292,15 @@ def removeExprArguments(string, target="crates/"):
         mode="all"
     )
 
-def removeUiElement(elem, builderMethod="child", target="crates/"):
-    yield from editAstAdvanced(
+def removeMethodCall(name, withinArguments, target="crates/"):
+    yield from mkRule(
         target,
         "rust",
-        [
-            elem
-            | match.rust.insideMethodCall("child")
-        ],
-        "div()",
-        mode="any"
+        match.rust.functionCallWith(withinArguments=withinArguments) |
+        {
+            "pattern": f"$$$PREVIOUS.{name}($$$)"
+        },
+        "$$$PREVIOUS"
     )
 
 with chdir("source"):
@@ -493,7 +492,7 @@ with chdir("source"):
         "let (telemetry, is_via_ssh) = { $$$ };"
     ]))
 
-    rules.extend(removeUiElement(match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
+    rules.extend(removeMethodCall("child", match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
 
     rules.extend(deletePatterns("crates/web_search_providers/", "rust", [
         "register_zed_web_search_provider($$$)"
