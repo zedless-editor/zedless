@@ -478,7 +478,10 @@ with chdir("source"):
                     },
                     {
                         "pattern": f"if {local} && $$$ {{ $$$ }} else {{ $$$ELSE }}",
-                    }
+                    },
+                    {
+                        "pattern": f"if $$$ && {local} {{ $$$ }} else {{ $$$ELSE }}",
+                    },
                 ],
             }, "$$$ELSE"))
             rules.extend(removeMethodCall("when", {
