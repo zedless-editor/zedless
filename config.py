@@ -110,6 +110,7 @@ CONFIG.perDirectory = {
         bannedStructs=[
             "AcpOnboardingModal",
             "ClaudeCodeOnboardingModal",
+            "EndTrialUpsell",
             "ThreadFeedbackState",
         ],
         bannedActions=[
@@ -117,6 +118,25 @@ CONFIG.perDirectory = {
             "OpenClaudeAgentOnboardingModal",
             "ResetTrialUpsell",
             "ResetTrialEndUpsell",
+        ],
+        bannedFunctions=[
+            "emit_configuration_error_telemetry_if_needed",
+            "handle_feedback_click",
+            "render_feedback_feedback_editor",
+            "render_onboarding",
+            "render_trial_end_upsell",
+            "should_render_onboarding",
+            "should_render_trial_end_upsell",
+            "submit_feedback_message",
+        ],
+        bannedArguments=[
+            "onboarding",
+            "thread_feedback",
+        ],
+        bannedLocals=[
+            "comments_editor",
+            "is_signed_in",
+            "onboarding",
         ]
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
