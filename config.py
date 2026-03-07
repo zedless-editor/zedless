@@ -108,7 +108,9 @@ CONFIG.perDirectory = {
     ),
     "crates/agent_ui/": PerDirectoryConfig(
         bannedStructs=[
-            "ThreadFeedbackState"
+            "AcpOnboardingModal",
+            "ClaudeCodeOnboardingModal",
+            "ThreadFeedbackState",
         ]
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
