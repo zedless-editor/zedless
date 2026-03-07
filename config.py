@@ -111,6 +111,12 @@ CONFIG.perDirectory = {
             "AcpOnboardingModal",
             "ClaudeCodeOnboardingModal",
             "ThreadFeedbackState",
+        ],
+        bannedActions=[
+            "OpenAcpOnboardingModal",
+            "OpenClaudeAgentOnboardingModal",
+            "ResetTrialUpsell",
+            "ResetTrialEndUpsell",
         ]
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
