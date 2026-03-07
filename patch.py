@@ -292,11 +292,11 @@ def removeExprArguments(string, target="crates/"):
         mode="all"
     )
 
-def removeMethodCall(name, withinArguments, target="crates/"):
+def removeMethodCall(name, withinArguments, target="crates/", matchRecursive=True):
     yield from mkRule(
         target,
         "rust",
-        match.rust.functionCallWith(withinArguments=withinArguments) |
+        match.rust.functionCallWith(withinArguments=withinArguments, matchRecursive=matchRecursive) |
         {
             "pattern": f"$$$PREVIOUS.{name}($$$)"
         },

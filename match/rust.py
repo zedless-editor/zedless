@@ -8,7 +8,7 @@ def functionCall(name):
     }
 
 
-def functionCallWith(identifier=None, withinArguments=None):
+def functionCallWith(identifier=None, withinArguments=None, matchRecursive=True):
     extraRules = []
     if identifier:
         extraRules.append({
@@ -18,9 +18,9 @@ def functionCallWith(identifier=None, withinArguments=None):
         extraRules.append({
             "has": {
                 "kind": "arguments",
-                "has": withinArguments | {
+                "has": withinArguments | ({
                     "stopBy": "end"
-                }
+                } if matchRecursive else {})
             }
         })
     return {
