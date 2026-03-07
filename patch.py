@@ -483,6 +483,24 @@ with chdir("source"):
                 f"if let $_ = {local}.$_() {{ $$$ }}",
                 f"{local}.$_($$$);",
             ]))
+            
+        for action in cfg.bannedActions:
+            rules.extend(removeMethodCall("register_action", {
+                "kind": "closure_expression",
+                "has": {
+                    "kind": "closure_parameters",
+                    "has": {
+                        "kind": "parameter",
+                        "has": {
+                            "field": "type",
+                            "has": {
+                                "kind": "type_identifier",
+                                "regex": f"^{action}$"
+                            }
+                        }
+                    }
+                }
+            }, target="crates/agent_ui/", matchRecursive=False))
 
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",

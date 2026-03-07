@@ -3,17 +3,20 @@ class PerDirectoryConfig:
     bannedStructs: list[str]
     bannedArguments: list[str]
     bannedLocals: list[str]
+    bannedActions: list[str]
     def __init__(
         self,
         bannedFunctions=[],
         bannedStructs=[],
         bannedArguments=[],
         bannedLocals=[],
+        bannedActions=[],
     ):
         self.bannedFunctions = bannedFunctions
         self.bannedStructs = bannedStructs
         self.bannedArguments = bannedArguments
         self.bannedLocals = bannedLocals
+        self.bannedActions = bannedActions
 
 class LanguageModelProvider:
     structPrefix: str
