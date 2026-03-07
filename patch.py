@@ -464,6 +464,9 @@ with chdir("source"):
         for arg in cfg.bannedArguments:
             rules.extend(removeFieldsInDeclarations(arg, target=target))
             rules.extend(removeExprArguments(arg, target=target))
+            rules.extend(deletePatterns(target, "rust", [
+                f"self.{arg}.$_($$$);",
+            ]))
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern"))
