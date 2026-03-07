@@ -482,12 +482,16 @@ with chdir("source"):
                 "kind": "identifier",
                 "pattern": local
             }, matchRecursive=False))
+            rules.extend(removeMethodCall("when_some", {
+                "kind": "identifier",
+                "pattern": local
+            }, matchRecursive=False))
             rules.extend(deletePatterns(target, "rust", [
                 f"if let $_ = {local} {{ $$$ }}",
                 f"if let $_ = {local}.$_() {{ $$$ }}",
                 f"{local}.$_($$$);",
             ]))
-            
+
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
                 "kind": "closure_expression",
