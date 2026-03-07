@@ -45,10 +45,10 @@ def mkRule(target, language, rule, fix):
 def runRules(rules):
     run([
         "ast-grep", "scan", "--update-all",
-        "--inline-rules", "\n---\n".join([dumps(r) for r in rules]),
+        "--rule", "/dev/stdin",
         "--color", "never",
         "."
-    ])
+    ], input="\n---\n".join([dumps(r) for r in rules]).encode())
 
 def deletePatterns(target, language, patterns, selector=None):
     rule = {
