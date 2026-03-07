@@ -51,6 +51,7 @@ CONFIG.bannedModules = [
     ("title_bar", "update_version"),
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "acp_onboarding_modal"),
+    ("agent_ui", "end_trial_upsell"),
 ]
 
 CONFIG.bannedLanguageModelProviders = [
