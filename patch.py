@@ -455,6 +455,18 @@ with chdir("source"):
                 }
             ]))
             rules.extend(removeSymbolImports(function, target=target))
+            rules.extend(removeMethodCall("child", {
+                "kind": "call_expression",
+                "pattern": f"self.{function}($$$)"
+            }, target=target, matchRecursive=False))
+            rules.extend(removeMethodCall("children", {
+                "kind": "call_expression",
+                "pattern": f"self.{function}($$$)"
+            }, target=target, matchRecursive=False))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "pattern": f"if !self.{function}($$$) && let $L1 = $$$L2 {{ $$$THEN }} else {{ $$$ELSE }}",
+            }, "if let $L1 = $$$L2 {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
 
         for struct in cfg.bannedStructs:
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
