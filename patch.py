@@ -478,6 +478,10 @@ with chdir("source"):
                     }
                 ],
             }, "$$$ELSE"))
+            rules.extend(removeMethodCall("when", {
+                "kind": "identifier",
+                "pattern": local
+            }, matchRecursive=False))
             rules.extend(deletePatterns(target, "rust", [
                 f"if let $_ = {local} {{ $$$ }}",
                 f"if let $_ = {local}.$_() {{ $$$ }}",
