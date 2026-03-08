@@ -58,13 +58,20 @@ def runRules(rules):
     with NamedTemporaryFile(suffix=".json", delete_on_close=False) as configFile:
         configFile.write(dumps(astGrepConfig).encode())
         configFile.close()
-        run([
-            "ast-grep", "scan", "--update-all",
-            "--config", configFile.name,
-            "--rule", "/dev/stdin",
-            "--color", "never",
-            "."
-        ], input="\n---\n".join([dumps(r) for r in rules]).encode())
+        # HACK: some of our rules can be applied multiple times,
+        # so run ast-grep until no more changes are applied
+        while True:
+            r = run([
+                "ast-grep", "scan", "--update-all",
+                "--config", configFile.name,
+                "--rule", "/dev/stdin",
+                "--color", "never",
+                "."
+            ], input="\n---\n".join([dumps(r) for r in rules]).encode(), capture_output=True)
+            output = r.stderr.decode()
+            if not (output.startswith("Applied ") and output.endswith(" changes\n")):
+                break
+            print(output.strip())
 
 def deletePatterns(target, language, patterns, selector=None):
     rule = {
