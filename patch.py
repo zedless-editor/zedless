@@ -495,7 +495,7 @@ with chdir("source"):
             ]))
 
         for local in cfg.bannedLocals:
-            rules.extend(deleteDeclarations("let_declaration", local, "pattern"))
+            rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
             rules.extend(mkRule(target, "rust", {
                 "kind": "if_expression",
                 "any": [
