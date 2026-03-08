@@ -347,6 +347,7 @@ with chdir("source"):
             f"mod {mod};",
             f"pub mod {mod};",
             f"pub use {mod}::*;",
+            f"{mod}::init($$$);",
         ]))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"] + glob(f"crates/{crate}/src/*/{mod}.rs"))
 
