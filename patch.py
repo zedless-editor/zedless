@@ -345,6 +345,7 @@ with chdir("source"):
         print("delete module:", crate, mod)
         rules.extend(deletePatterns(f"crates/{crate}/", "rust", [
             f"mod {mod};",
+            f"pub mod {mod};",
             f"pub use {mod}::*;",
         ]))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"] + glob(f"crates/{crate}/src/*/{mod}.rs"))
