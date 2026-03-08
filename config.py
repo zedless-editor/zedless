@@ -182,5 +182,20 @@ CONFIG.perDirectory = {
             "privacy_section",
             "auto_update_section",
         ]
+    ),
+    "crates/zed/": PerDirectoryConfig(
+        bannedFunctions=[
+            "authenticate",
+            "installation_id",
+            "system_id",
+        ],
+        bannedLocals=[
+            "installation_id",
+            "system_specs",
+            "telemetry_log_item",
+        ],
+        bannedStructs=[
+            "IdType"
+        ]
     )
 }
