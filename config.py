@@ -168,6 +168,11 @@ CONFIG.perDirectory = {
         ],
         bannedStructs=[
             "UpdateVersion",
+        ],
+        bannedLocals=[
+            "is_signed_in",
+            "show_update_badge",
+            "update_version",
         ]
     )
 }
