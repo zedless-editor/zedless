@@ -512,8 +512,12 @@ with chdir("source"):
             rules.extend(deletePatterns(target, "rust", [
                 f"if let $_ = {local} {{ $$$ }}",
                 f"if let $_ = {local}.$_() {{ $$$ }}",
+                f"if let (Some($_), Some($_)) = (&{local}, &$_) {{ $$$ }}",
                 f"{local}.$_($$$);",
+                f"{local}.$_($$$).detach();",
                 f"if !{local}.is_empty() {{ $$$ }}",
+                f"$_.$_({local}, $$$);",
+                f"println!($$$, {local});",
             ]))
 
         for action in cfg.bannedActions:
