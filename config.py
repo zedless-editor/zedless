@@ -106,6 +106,15 @@ CONFIG.perDirectory = {
             "telemetry",
         ]
     ),
+    "crates/activity_indicator/": PerDirectoryConfig(
+        bannedFunctions=[
+            "dismiss_message",
+        ],
+        bannedLocals=[
+            "checking_for_update",
+            "downloading",
+        ]
+    ),
     "crates/agent_ui/": PerDirectoryConfig(
         bannedStructs=[
             "AcpOnboardingModal",
