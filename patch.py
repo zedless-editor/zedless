@@ -473,6 +473,14 @@ with chdir("source"):
                 "kind": "if_expression",
                 "pattern": f"if !self.{function}($$$) && let $L1 = $$$L2 {{ $$$THEN }} else {{ $$$ELSE }}",
             }, "if let $L1 = $$$L2 {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
+            rules.extend(removeMethodCall("on_action", {
+                "kind": "call_expression",
+                "pattern": f"cx.listener(Self::{function})"
+            }))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "call_expression",
+                "pattern": f"Some(Arc::new(|$$$| {{ this.{function}($$$) }}))"
+            }, "None"))
 
         for struct in cfg.bannedStructs:
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
