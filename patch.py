@@ -4,6 +4,7 @@ from json import dumps
 from os.path import exists
 from pathlib import PurePosixPath
 from subprocess import run
+from tempfile import NamedTemporaryFile
 from config import CONFIG
 
 import toml
@@ -43,12 +44,27 @@ def mkRule(target, language, rule, fix):
     }
 
 def runRules(rules):
-    run([
-        "ast-grep", "scan", "--update-all",
-        "--rule", "/dev/stdin",
-        "--color", "never",
-        "."
-    ], input="\n---\n".join([dumps(r) for r in rules]).encode())
+    astGrepConfig = {
+        "languageInjections": [
+            {
+                "hostLanguage": "rust",
+                "rule": {
+                    "pattern": "vec!$CONTENT"
+                },
+                "injected": "rust"
+            }
+        ]
+    }
+    with NamedTemporaryFile(suffix=".json", delete_on_close=False) as configFile:
+        configFile.write(dumps(astGrepConfig).encode())
+        configFile.close()
+        run([
+            "ast-grep", "scan", "--update-all",
+            "--config", configFile.name,
+            "--rule", "/dev/stdin",
+            "--color", "never",
+            "."
+        ], input="\n---\n".join([dumps(r) for r in rules]).encode())
 
 def deletePatterns(target, language, patterns, selector=None):
     rule = {
