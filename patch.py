@@ -310,6 +310,9 @@ with chdir("source"):
     for crate in CONFIG.bannedCrates:
         if exists(f"crates/{crate}"):
             cratesToDelete.append(crate)
+        rules.extend(deletePatterns("crates/zed/", "rust", [
+            f"{crate}::init($$$);"
+        ]))
 
     if len(cratesToDelete) > 0:
         for crate in cratesToDelete:
