@@ -508,6 +508,7 @@ with chdir("source"):
                 f"if let $_ = {local} {{ $$$ }}",
                 f"if let $_ = {local}.$_() {{ $$$ }}",
                 f"{local}.$_($$$);",
+                f"if !{local}.is_empty() {{ $$$ }}",
             ]))
 
         for action in cfg.bannedActions:
