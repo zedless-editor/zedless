@@ -492,6 +492,7 @@ with chdir("source"):
             rules.extend(removeExprArguments(arg, target=target))
             rules.extend(deletePatterns(target, "rust", [
                 f"self.{arg}.$_($$$);",
+                f"if !$_.{arg}.is_empty() || $$$ {{ $$$ }}",
             ]))
 
         for local in cfg.bannedLocals:
