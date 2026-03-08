@@ -55,6 +55,8 @@ CONFIG.bannedModules = [
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "acp_onboarding_modal"),
     ("agent_ui", "end_trial_upsell"),
+    ("zed", "telemetry_log"),
+    ("zed", "reliability"),
 ]
 
 CONFIG.bannedLanguageModelProviders = [
@@ -173,6 +175,12 @@ CONFIG.perDirectory = {
             "is_signed_in",
             "show_update_badge",
             "update_version",
+        ]
+    ),
+    "crates/settings_ui/": PerDirectoryConfig(
+        bannedFunctions=[
+            "privacy_section",
+            "auto_update_section",
         ]
     )
 }
