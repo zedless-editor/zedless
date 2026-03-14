@@ -669,6 +669,7 @@ with chdir("source"):
         "register_zed_web_search_provider($$$)"
     ]))
 
+    rules.extend(unimplementFunction("ensure_server_binary", target="crates/remote/"))
     rules.extend(unimplementFunction("download_server_binary_locally", target="crates/remote_connection/"))
     rules.extend(unimplementFunction("get_download_url", target="crates/remote_connection/"))
     runRules(rules)
