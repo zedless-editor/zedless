@@ -558,11 +558,16 @@ with chdir("source"):
                 f"if !{local}.is_empty() {{ $$$ }}",
                 f"$_.$_({local}, $$$);",
                 f"println!($$$, {local});",
+                f"{local} = $$$;",
+                f"{local}.$_($$$).await?;",
             ]))
             rules.extend(mkRule(target, "rust", {
                 "kind": "if_expression",
                 "pattern": f"if {local} {{ $$$ }} else if $$$COND {{ $$$THEN }} else {{ $ELSE }}"
             }, "if $$$COND {\n    $$$THEN\n} else {\n    $ELSE\n}"))
+            rules.extend(nullifyExpressions([
+                f"{local}.is_some()"
+            ], "false"))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
