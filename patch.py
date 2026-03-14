@@ -496,6 +496,10 @@ with chdir("source"):
                 "kind": "if_expression",
                 "pattern": f"if !self.{function}($$$) && let $L1 = $$$L2 {{ $$$THEN }} else {{ $$$ELSE }}",
             }, "if let $L1 = $$$L2 {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "pattern": f"if $$$COND {{ $$$THEN }} else if let Some($_) = {function}($$$) {{ $$$ }} else {{ $$$ELSE }}",
+            }, "if $$$COND {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
             rules.extend(removeMethodCall("on_action", {
                 "kind": "call_expression",
                 "pattern": f"cx.listener(Self::{function})"
@@ -504,6 +508,9 @@ with chdir("source"):
                 "kind": "call_expression",
                 "pattern": f"Some(Arc::new(|$$$| {{ this.{function}($$$) }}))"
             }, "None"))
+            rules.extend(nullifyExpressions([
+                f"{function}($$$).is_some()"
+            ], "false"))
 
         for struct in cfg.bannedStructs:
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
@@ -552,6 +559,10 @@ with chdir("source"):
                 f"$_.$_({local}, $$$);",
                 f"println!($$$, {local});",
             ]))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "pattern": f"if {local} {{ $$$ }} else if $$$COND {{ $$$THEN }} else {{ $ELSE }}"
+            }, "if $$$COND {\n    $$$THEN\n} else {\n    $ELSE\n}"))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
