@@ -689,6 +689,32 @@ with chdir("source"):
         }
     }))
 
+    # HACK: ast-grep doesn't seem to support recursive language injections,
+    # so the rule above doesn't work (yet). It also seems to be impossible to
+    # match the entire call_expression with the unparsed AST nodes, so we do
+    # the next best thing: replace the action with a different one.
+    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+        "kind": "token_tree",
+        "follows": {
+            "kind": "identifier",
+            "pattern": "action",
+        },
+        "has": {
+            "kind": "string_literal",
+            "any": [
+                { "pattern": f"\"{actionName}\"" }
+                for actionName in [
+                    "Check for Updates",
+                    "View Release Notes Locally",
+                    "View Telemetry",
+                    "Zed Repository",
+                ]
+            ]
+        }
+    }, {
+        "template": "(\"ZEDLESS\", super::OpenBrowser { url: \"https://zedless.org\".into() })"
+    }))
+
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True))
