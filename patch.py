@@ -523,7 +523,17 @@ with chdir("source"):
             rules.extend(deletePatterns(target, "rust", [
                 f"self.{arg}.$_($$$);",
                 f"if !$_.{arg}.is_empty() || $$$ {{ $$$ }}",
+                f"if $_::get_global(cx).{arg} {{ $$$ }}",
+                f"if $_::get_global(cx).{arg} && $$$ {{ $$$ }}",
             ]))
+            rules.extend(removeMethodCall(
+                "child",
+                match.rust.functionCallWith({
+                    "kind": "field_expression",
+                    "pattern": f"self.{arg}.clone"
+                }),
+                target=target
+            ))
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
