@@ -141,6 +141,7 @@ CONFIG.perDirectory = {
             "submit_feedback_message",
         ],
         bannedArguments=[
+            "enable_feedback",
             "onboarding",
             "thread_feedback",
         ],
