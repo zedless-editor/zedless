@@ -157,6 +157,10 @@ CONFIG.perDirectory = {
         ],
         bannedStructs=[
             "ZedPredictModal",
+        ],
+        bannedLocals=[
+            "llm_token",
+            "token",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
