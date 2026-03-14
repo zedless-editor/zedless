@@ -150,6 +150,11 @@ CONFIG.perDirectory = {
             "onboarding",
         ]
     ),
+    "crates/command_palette/": PerDirectoryConfig(
+        bannedLocals=[
+            "is_zed_link",
+        ]
+    ),
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
             "onboarding",
@@ -188,13 +193,18 @@ CONFIG.perDirectory = {
         ]
     ),
     "crates/zed/": PerDirectoryConfig(
+        bannedArguments=[
+            "open_channel_notes",
+        ],
         bannedFunctions=[
             "authenticate",
             "installation_id",
+            "parse_zed_link",
             "system_id",
         ],
         bannedLocals=[
             "installation_id",
+            "is_zed_link",
             "system_specs",
             "telemetry_log_item",
         ],
