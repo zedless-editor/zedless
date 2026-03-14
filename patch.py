@@ -49,7 +49,7 @@ def runRules(rules):
             {
                 "hostLanguage": "rust",
                 "rule": {
-                    "pattern": "vec!$CONTENT"
+                    "pattern": "$_!$CONTENT"
                 },
                 "injected": "rust"
             }
