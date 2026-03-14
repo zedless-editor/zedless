@@ -468,6 +468,7 @@ with chdir("source"):
             rules.extend(deletePatterns(target, "rust", [
                 f"{function}($$$);",
                 f"$_::{function}($$$);",
+                f"$_.$_().{function}().$_($$$);",
             ], "expression_statement"))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
@@ -480,6 +481,22 @@ with chdir("source"):
                                 "regex": f"^{function}$"
                             }
                         }
+                    }
+                },
+                {
+                    "pattern": "cx.spawn($$$).$_($$$);",
+                    "has": {
+                        "kind": "call_expression",
+                        "has": {
+                            "kind": "arguments",
+                            "has": {
+                                "kind": "block",
+                                "has": {
+                                    "pattern": f"$$$ {function}($$$).await"
+                                }
+                            }
+                        },
+                        "stopBy": "end"
                     }
                 }
             ]))
@@ -511,6 +528,23 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"{function}($$$).is_some()"
             ], "false"))
+            rules.extend(mkRule(target, "rust",
+                {
+                    "kind": "call_expression",
+                    "has": {
+                        "kind": "identifier",
+                        "pattern": function,
+                    },
+                    "precedes": {
+                        "regex": ","
+                    }
+                }, {
+                    "template": "",
+                    "expandEnd": {
+                        "regex": ","
+                    }
+                }
+            ))
 
         for struct in cfg.bannedStructs:
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
