@@ -582,6 +582,42 @@ with chdir("source"):
                 }
             }, target="crates/agent_ui/", matchRecursive=False))
 
+    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+        "kind": "call_expression",
+        "all": [
+            {
+                "has": {
+                    "kind": "scoped_identifier",
+                    "pattern": "MenuItem::action"
+                }
+            },
+            {
+                "has": {
+                    "kind": "arguments",
+                    "has": {
+                        "kind": "string_literal",
+                        "any": [
+                            { "pattern": f"\"{actionName}\"" }
+                            for actionName in [
+                                "Check for Updates",
+                                "Email Us...",
+                                "View Release Notes Locally",
+                                "View Telemetry",
+                                "Zed Repository",
+                                "Zed Twitter",
+                            ]
+                        ]
+                    }
+                }
+            }
+        ]
+    }, {
+        "template": "",
+        "expandEnd": {
+            "regex": ","
+        }
+    }))
+
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
     ], "()", deleteStatements=True))
