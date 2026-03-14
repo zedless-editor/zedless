@@ -166,6 +166,9 @@ CONFIG.perDirectory = {
         bannedLocals=[
             "llm_token",
             "token",
+        ],
+        bannedActions=[
+            "OpenZedPredictOnboarding",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
