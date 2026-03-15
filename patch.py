@@ -69,6 +69,9 @@ def runRules(rules):
                 "."
             ], input="\n---\n".join([dumps(r) for r in rules]).encode(), capture_output=True)
             output = r.stderr.decode()
+            if r.returncode != 0:
+                print(output)
+                exit(r.returncode)
             if not (output.startswith("Applied ") and output.endswith(" changes\n")):
                 break
             print(output.strip())
