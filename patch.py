@@ -340,13 +340,28 @@ with chdir("source"):
             f"{crate}::init($$$);"
         ]))
 
+    crateIdentifiers = [{ "pattern": crate } for crate in CONFIG.bannedCrates]
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "use_declaration",
+        "has": {
+            "field": "argument",
+            "any": [
+                {
+                    "kind": "scoped_identifier",
+                    "has": {
+                        "field": "path",
+                        "any": crateIdentifiers
+                    }
+                },
+            ]
+        }
+    }, ""))
+
     if len(cratesToDelete) > 0:
         for crate in cratesToDelete:
             print("delete crate:", crate)
             run(["rm", "-rf", f"crates/{crate}/"])
 
-        rules.extend(deletePatterns("crates/", "rust", [f"use {crate}::$_;" for crate in cratesToDelete]))
-        rules.extend(deletePatterns("crates/", "rust", [f"use {crate}::{{$$$}};" for crate in cratesToDelete]))
         with editTomlDocument("Cargo.toml") as (data, write):
             data["workspace"]["members"] = list(filter(
                 lambda m: m.removeprefix("crates/") not in cratesToDelete,
