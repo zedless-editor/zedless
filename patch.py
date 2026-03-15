@@ -332,6 +332,30 @@ def removeMethodCall(name, withinArguments, target="crates/", matchRecursive=Tru
         "$$$PREVIOUS"
     )
 
+def removeElementFromDelimitedList(target, elem, delimiter=","):
+    delimiterRule = {
+        "regex": f"^{delimiter}$"
+    }
+    yield from mkRule(target, "rust",
+        elem | {
+            "follows": delimiterRule
+        },
+        {
+            "template": "",
+            "expandStart": delimiterRule
+        }
+    )
+    yield from mkRule(target, "rust",
+        elem | {
+            "precedes": delimiterRule
+        },
+        {
+            "template": "",
+            "expandEnd": delimiterRule
+        }
+    )
+
+
 with chdir("source"):
     rules = []
 
