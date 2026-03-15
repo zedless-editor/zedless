@@ -130,6 +130,9 @@ def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
                     { "kind": "line_comment" },
                     { "kind": "attribute_item" }
                 ]
+            },
+            "expandEnd": {
+                "regex": "^,$"
             }
         },
     )
