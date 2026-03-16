@@ -446,6 +446,7 @@ with chdir("source"):
             f"pub mod {mod};",
             f"use crate::{mod}::$_;",
             f"pub use crate::{mod}::$_;",
+            f"pub use crate::{mod}::*;",
             f"pub use {mod}::*;",
             f"{mod}::init($$$);",
             f"{crate}::{mod}::init($$$);",
