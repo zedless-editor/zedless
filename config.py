@@ -53,7 +53,10 @@ CONFIG.bannedCrates = [
 
 CONFIG.bannedModules = [
     ("web_search_providers", "cloud"),
+    ("edit_prediction", "mercury"),
     ("edit_prediction", "onboarding_modal"),
+    ("edit_prediction", "sweep_ai"),
+    ("edit_prediction_ui", "rate_prediction_modal"),
     ("title_bar", "update_version"),
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "acp_onboarding_modal"),
@@ -152,6 +155,10 @@ CONFIG.perDirectory = {
             "comments_editor",
             "is_signed_in",
             "onboarding",
+        ],
+        bannedEnumVariants=[
+            "Mercury",
+            "Sweep",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
@@ -161,10 +168,14 @@ CONFIG.perDirectory = {
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
-            "onboarding",
             "llm_token",
+            "mercury",
+            "onboarding",
+            "rating",
+            "sweep_ai",
         ],
         bannedStructs=[
+            "EditPredictionRating",
             "ZedPredictModal",
         ],
         bannedLocals=[
@@ -173,6 +184,32 @@ CONFIG.perDirectory = {
         ],
         bannedActions=[
             "OpenZedPredictOnboarding",
+        ],
+        bannedFunctions=[
+            "has_mercury_api_token",
+            "has_sweep_api_token",
+            "is_prediction_rated",
+            "rate_prediction",
+        ],
+        bannedEnumVariants=[
+            "Mercury",
+            "Sweep",
+        ]
+    ),
+    "crates/edit_prediction_ui/": PerDirectoryConfig(
+        bannedLocals=[
+            "mercury_api_token_task",
+            "sweep_api_token_task",
+        ],
+        bannedEnumVariants=[
+            "Mercury",
+            "Sweep",
+        ],
+        bannedFunctions=[
+            "feature_gate_predict_edits_actions",
+        ],
+        bannedActions=[
+            "RatePredictions",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
@@ -193,10 +230,17 @@ CONFIG.perDirectory = {
             "update_version",
         ]
     ),
+    "crates/settings_content/": PerDirectoryConfig(
+        bannedEnumVariants=[
+            "Mercury",
+            "Sweep",
+        ]
+    ),
     "crates/settings_ui/": PerDirectoryConfig(
         bannedFunctions=[
-            "privacy_section",
             "auto_update_section",
+            "privacy_section",
+            "render_api_key_provider",
         ]
     ),
     "crates/zed/": PerDirectoryConfig(
@@ -217,6 +261,10 @@ CONFIG.perDirectory = {
         ],
         bannedStructs=[
             "IdType"
+        ],
+        bannedEnumVariants=[
+            "Mercury",
+            "Sweep",
         ]
     )
 }
