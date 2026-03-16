@@ -755,6 +755,11 @@ with chdir("source"):
                     }
                 }
             }))
+            rules.extend(mkRule(target, "rust", {
+                "pattern": f"let ($A, $B, {local}) = if $$$COND {{ ($ATHEN, $BTHEN, $_) }} else {{ ($AELSE, $BELSE, $_) }};"
+            }, {
+                "template": "let ($A, $B) = if $$$COND {\n    ($ATHEN, $BTHEN)\n} else {\n    ($AELSE, $BELSE)\n};"
+            }))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
