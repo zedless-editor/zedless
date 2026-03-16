@@ -873,6 +873,10 @@ with chdir("source"):
     }, {
         "template": "(\"ZEDLESS\", super::OpenBrowser { url: \"https://zedless.org\".into() })"
     }))
+    
+    rules.extend(removeMethodCall("when", {
+        "pattern": "cx.has_flag::<PredictEditsRatePredictionsFeatureFlag>()",
+    }, matchRecursive=False))
 
     rules.extend(nullifyExpressions([
         "telemetry::event!($$$)",
