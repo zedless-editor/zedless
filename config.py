@@ -49,6 +49,7 @@ CONFIG.bannedCrates = [
     "auto_update_ui",
     "feedback",
     "telemetry",
+    "telemetry_events",
 ]
 
 CONFIG.bannedModules = [
