@@ -734,6 +734,7 @@ with chdir("source"):
                 f"println!($$$, {local});",
                 f"{local} = $$$;",
                 f"{local}.$_($$$).await?;",
+                f"$_.{local} = {local};",
             ]))
             rules.extend(mkRule(target, "rust", {
                 "kind": "if_expression",
