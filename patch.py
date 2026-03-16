@@ -715,6 +715,37 @@ with chdir("source"):
                 }
             ]))
 
+        for variant in cfg.bannedEnumVariants:
+            rules.extend(deleteDeclarations("enum_variant", variant, target=target))
+            rules.extend(deletePatternsAdvanced(target, "rust", "match_arm", [
+                {
+                    "has": {
+                        "kind": "match_pattern",
+                        "has": {
+                            "kind": "scoped_identifier",
+                            "pattern": f"$_::{variant}"
+                        }
+                    }
+                }
+            ]))
+            rules.extend(removeElementFromDelimitedList(target, {
+                "pattern": f"$_::{variant}",
+                "inside": {
+                    "kind": "or_pattern",
+                    "inside": {
+                        "kind": "match_pattern",
+                        "stopBy": "end"
+                    }
+                }
+            }, delimiter="|"))
+            rules.extend(nullifyIfStatement(target, [
+                f"$$$ == $_::{variant}",
+                f"$$$ == $_::{variant} && $$$",
+            ]))
+            rules.extend(deletePatterns(target, "rust", [
+                f"$_.push($_::{variant});",
+            ], "expression_statement"))
+
     rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
         "kind": "call_expression",
         "all": [
