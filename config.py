@@ -92,6 +92,7 @@ CONFIG.perDirectory = {
             "send_telemetry",
             "set_authenticated_user_info",
             "telemetry",
+            "telemetry_event_text",
             "telemetry_report_accepted_edits",
             "telemetry_report_rejected_edits",
             "telemetry_settings_content",
