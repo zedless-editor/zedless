@@ -355,6 +355,32 @@ def removeElementFromDelimitedList(target, elem, delimiter=","):
         }
     )
 
+def nullifyIfStatement(target, conditionPattern: str | list[str], selectElse=True):
+    if type(conditionPattern) == str:
+        conditionPattern = [conditionPattern]
+    yield from mkRule(target, "rust", {
+        "kind": "if_expression",
+        "inside": {
+            "kind": "expression_statement"
+        },
+        "any": [
+            {
+                "pattern": f"if {pattern} {{ $$$THEN }} else {{ $$$ELSE }}"
+            }
+            for pattern in conditionPattern
+        ]
+    }, "$$$ELSE" if selectElse else "$$$THEN")
+    if selectElse:
+        yield from deletePatternsAdvanced(target, "rust", "if_expression", [
+            {
+                "pattern": f"if {pattern} {{ $$$ }}",
+                "inside": {
+                    "kind": "expression_statement"
+                }
+            }
+            for pattern in conditionPattern
+        ])
+
 
 with chdir("source"):
     rules = []
@@ -616,20 +642,11 @@ with chdir("source"):
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
-            rules.extend(mkRule(target, "rust", {
-                "kind": "if_expression",
-                "any": [
-                    {
-                        "pattern": f"if {local} {{ $$$ }} else {{ $$$ELSE }}",
-                    },
-                    {
-                        "pattern": f"if {local} && $$$ {{ $$$ }} else {{ $$$ELSE }}",
-                    },
-                    {
-                        "pattern": f"if $$$ && {local} {{ $$$ }} else {{ $$$ELSE }}",
-                    },
-                ],
-            }, "$$$ELSE"))
+            rules.extend(nullifyIfStatement(target, [
+                local,
+                f"{local} && $$$",
+                f"$$$ && {local}"
+            ]))
             rules.extend(removeMethodCall("when", {
                 "kind": "identifier",
                 "pattern": local
