@@ -62,6 +62,7 @@ CONFIG.bannedModules = [
     ("edit_prediction", "onboarding_modal"),
     ("edit_prediction", "sweep_ai"),
     ("edit_prediction_ui", "rate_prediction_modal"),
+    ("language_model", "telemetry"),
     ("project", "telemetry_snapshot"),
     ("title_bar", "update_version"),
     ("web_search_providers", "cloud"),
@@ -146,6 +147,9 @@ CONFIG.perDirectory = {
     "crates/agent_ui/": PerDirectoryConfig(
         bannedStructs=[
             "AcpOnboardingModal",
+            "AnthropicCompletionType",
+            "AnthropicEventData",
+            "AnthropicEventType",
             "ClaudeCodeOnboardingModal",
             "EndTrialUpsell",
             "ThreadFeedbackState",
@@ -162,6 +166,7 @@ CONFIG.perDirectory = {
             "render_feedback_feedback_editor",
             "render_onboarding",
             "render_trial_end_upsell",
+            "report_anthropic_event",
             "should_render_onboarding",
             "should_render_trial_end_upsell",
             "submit_feedback_message",
@@ -172,6 +177,8 @@ CONFIG.perDirectory = {
             "thread_feedback",
         ],
         bannedLocals=[
+            "anthropic_event_type",
+            "anthropic_reporter",
             "comments_editor",
             "is_signed_in",
             "onboarding",
@@ -179,6 +186,16 @@ CONFIG.perDirectory = {
         bannedEnumVariants=[
             "Mercury",
             "Sweep",
+        ]
+    ),
+    "crates/assistant_text_thread/": PerDirectoryConfig(
+        bannedStructs=[
+            "AnthropicCompletionType",
+            "AnthropicEventData",
+            "AnthropicEventType",
+        ],
+        bannedFunctions=[
+            "report_anthropic_event",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
