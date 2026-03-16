@@ -740,6 +740,16 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
             ], "false"))
+            rules.extend(removeElementFromDelimitedList(target, {
+                "kind": "identifier",
+                "pattern": local,
+                "inside": {
+                    "kind": "token_tree",
+                    "inside": {
+                        "kind": "macro_invocation"
+                    }
+                }
+            }))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
