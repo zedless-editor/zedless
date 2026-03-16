@@ -53,17 +53,18 @@ CONFIG.bannedCrates = [
 ]
 
 CONFIG.bannedModules = [
-    ("web_search_providers", "cloud"),
+    ("agent_ui", "acp_onboarding_modal"),
+    ("agent_ui", "claude_agent_onboarding_modal"),
+    ("agent_ui", "end_trial_upsell"),
+    ("client", "telemetry"),
     ("edit_prediction", "mercury"),
     ("edit_prediction", "onboarding_modal"),
     ("edit_prediction", "sweep_ai"),
     ("edit_prediction_ui", "rate_prediction_modal"),
     ("title_bar", "update_version"),
-    ("agent_ui", "claude_agent_onboarding_modal"),
-    ("agent_ui", "acp_onboarding_modal"),
-    ("agent_ui", "end_trial_upsell"),
-    ("zed", "telemetry_log"),
+    ("web_search_providers", "cloud"),
     ("zed", "reliability"),
+    ("zed", "telemetry_log"),
 ]
 
 CONFIG.bannedLanguageModelProviders = [
