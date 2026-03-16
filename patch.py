@@ -669,23 +669,21 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"{function}($$$).is_some()"
             ], "false"))
-            rules.extend(mkRule(target, "rust",
-                {
-                    "kind": "call_expression",
-                    "has": {
-                        "kind": "identifier",
-                        "pattern": function,
+            rules.extend(removeElementFromDelimitedList(target, {
+                "kind": "call_expression",
+                "any": [
+                    {
+                        "kind": "call_expression",
+                        "has": {
+                            "kind": "identifier",
+                            "pattern": function
+                        },
                     },
-                    "precedes": {
-                        "regex": ","
+                    {
+                        "pattern": f"Some({function}($$$).$_())"
                     }
-                }, {
-                    "template": "",
-                    "expandEnd": {
-                        "regex": ","
-                    }
-                }
-            ))
+                ]
+            }))
 
         for struct in cfg.bannedStructs:
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
