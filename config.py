@@ -61,6 +61,7 @@ CONFIG.bannedModules = [
     ("edit_prediction", "onboarding_modal"),
     ("edit_prediction", "sweep_ai"),
     ("edit_prediction_ui", "rate_prediction_modal"),
+    ("project", "telemetry_snapshot"),
     ("title_bar", "update_version"),
     ("web_search_providers", "cloud"),
     ("zed", "reliability"),
@@ -124,6 +125,20 @@ CONFIG.perDirectory = {
         bannedLocals=[
             "checking_for_update",
             "downloading",
+        ]
+    ),
+    "crates/agent/": PerDirectoryConfig(
+        bannedFunctions=[
+            "project_snapshot",
+        ],
+        bannedStructs=[
+            "ProjectSnapshot",
+        ],
+        bannedArguments=[
+            "initial_project_snapshot",
+        ],
+        bannedLocals=[
+            "initial_project_snapshot",
         ]
     ),
     "crates/agent_ui/": PerDirectoryConfig(
