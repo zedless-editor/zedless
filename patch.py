@@ -354,6 +354,10 @@ def removeElementFromDelimitedList(target, elem, delimiter=","):
             "expandEnd": delimiterRule
         }
     )
+    yield from mkRule(target, "rust",
+        elem,
+        ""
+    )
 
 def nullifyIfStatement(target, conditionPattern: str | list[str], selectElse=True):
     if type(conditionPattern) == str:
