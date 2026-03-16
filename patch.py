@@ -440,10 +440,76 @@ with chdir("source"):
         rules.extend(deletePatterns(f"crates/{crate}/", "rust", [
             f"mod {mod};",
             f"pub mod {mod};",
+            f"use crate::{mod}::$_;",
+            f"pub use crate::{mod}::$_;",
             f"pub use {mod}::*;",
             f"{mod}::init($$$);",
             f"{crate}::{mod}::init($$$);",
         ]))
+        rules.extend(mkRule(f"crates/{crate}/", "rust", {
+            "kind": "use_declaration",
+            "has": {
+                "field": "argument",
+                "any": [
+                    {
+                        "kind": "scoped_identifier",
+                        "has": {
+                            "field": "path",
+                            "pattern": mod
+                        }
+                    },
+                ]
+            }
+        }, ""))
+        rules.extend(removeElementFromDelimitedList(f"crates/{crate}/", {
+            "any": [
+                {
+                    "kind": "scoped_identifier",
+                    "pattern": f"{mod}::$_"
+                },
+                {
+                    "kind": "scoped_use_list",
+                    "has": {
+                        "kind": "identifier",
+                        "pattern": mod
+                    }
+                },
+            ],
+            "inside": {
+                "kind": "use_list",
+                "inside": {
+                    "kind": "scoped_use_list",
+                    "has": {
+                        "kind": "crate"
+                    }
+                }
+            }
+        }))
+        rules.extend(removeElementFromDelimitedList("crates/", {
+            "any": [
+                {
+                    "kind": "scoped_identifier",
+                    "pattern": f"{mod}::$_"
+                },
+                {
+                    "kind": "scoped_use_list",
+                    "has": {
+                        "kind": "identifier",
+                        "pattern": mod
+                    }
+                },
+            ],
+            "inside": {
+                "kind": "use_list",
+                "inside": {
+                    "kind": "scoped_use_list",
+                    "has": {
+                        "kind": "identifier",
+                        "pattern": crate
+                    }
+                }
+            }
+        }))
         run(["rm", "-f", f"crates/{crate}/src/{mod}.rs"] + glob(f"crates/{crate}/src/*/{mod}.rs"))
 
     for provider in CONFIG.bannedLanguageModelProviders:
