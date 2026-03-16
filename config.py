@@ -47,6 +47,7 @@ CONFIG.bannedCrates = [
     "ai_onboarding",
     "auto_update",
     "auto_update_ui",
+    "collab",
     "feedback",
     "telemetry",
     "telemetry_events",
