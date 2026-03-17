@@ -109,32 +109,36 @@ def deletePatternsAdvanced(target, language, kind, patterns):
 
 def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
     print("delete declarations:", kind, name)
+    elem = {
+        "kind": kind,
+        "has": {
+            "field": identifierField,
+            "regex": f"^{name}$"
+        }
+    }
     yield from editAstAdvanced(
         target,
         "rust",
         [
+            elem,
             {
-                "kind": kind
-            },
-            {
-                "has": {
-                    "field": identifierField,
-                    "regex": f"^{name}$"
+                "kind": "attribute_item,line_comment",
+                "precedes": elem | {
+                    "stopBy": {
+                        "not": {
+                            "kind": "attribute_item,line_comment"
+                        }
+                    }
                 }
             }
         ],
         {
             "template": "",
-            "expandStart": {
-                "any": [
-                    { "kind": "line_comment" },
-                    { "kind": "attribute_item" }
-                ]
-            },
             "expandEnd": {
                 "regex": "^,$"
             }
         },
+        mode="any",
     )
 
 def unimplementFunction(name, target="crates/"):
