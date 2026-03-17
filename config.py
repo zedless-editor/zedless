@@ -102,6 +102,7 @@ CONFIG.perDirectory = {
             "telemetry_settings_content",
         ],
         bannedStructs=[
+            "ActionLogTelemetry",
             "AiUpsellCard",
             "EditPredictionOnboarding",
             "LlmApiToken",
