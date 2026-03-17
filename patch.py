@@ -429,6 +429,13 @@ with chdir("source"):
                         "any": crateIdentifiers
                     }
                 },
+                {
+                    "kind": "scoped_use_list",
+                    "has": {
+                        "field": "path",
+                        "any": crateIdentifiers
+                    }
+                },
             ]
         }
     }, ""))
