@@ -869,6 +869,22 @@ with chdir("source"):
                 f"$_.push($_::{variant});",
             ], "expression_statement"))
 
+        for enum in cfg.bannedEnums:
+            rules.extend(deleteDeclarationsAdvanced(target, {
+                "kind": "impl_item",
+                "has": {
+                    "field": "trait",
+                    "kind": "generic_type",
+                    "has": {
+                        "kind": "type_arguments",
+                        "has": {
+                            "kind": "type_identifier",
+                            "regex": f"^{enum}$"
+                        }
+                    }
+                }
+            }))
+
     rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
         "kind": "call_expression",
         "all": [

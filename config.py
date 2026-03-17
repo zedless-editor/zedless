@@ -5,6 +5,7 @@ class PerDirectoryConfig:
     bannedLocals: list[str]
     bannedActions: list[str]
     bannedEnumVariants: list[str]
+    bannedEnums: list[str]
     def __init__(
         self,
         bannedFunctions=[],
@@ -13,6 +14,7 @@ class PerDirectoryConfig:
         bannedLocals=[],
         bannedActions=[],
         bannedEnumVariants=[],
+        bannedEnums=[],
     ):
         self.bannedFunctions = bannedFunctions
         self.bannedStructs = bannedStructs
@@ -20,6 +22,7 @@ class PerDirectoryConfig:
         self.bannedLocals = bannedLocals
         self.bannedActions = bannedActions
         self.bannedEnumVariants = bannedEnumVariants
+        self.bannedEnums = bannedEnums
 
 class LanguageModelProvider:
     structPrefix: str
