@@ -48,12 +48,21 @@ class Config:
 CONFIG = Config()
 CONFIG.bannedCrates = [
     "ai_onboarding",
+    "anthropic",
     "auto_update",
     "auto_update_ui",
+    "bedrock",
     "collab",
+    "deepseek",
     "feedback",
+    "google_ai",
+    "lmstudio",
+    "mistral",
+    "open_router",
     "telemetry",
     "telemetry_events",
+    "vercel",
+    "x_ai",
 ]
 
 CONFIG.bannedModules = [
@@ -274,6 +283,12 @@ CONFIG.perDirectory = {
         ],
         bannedActions=[
             "RatePredictions",
+        ]
+    ),
+    "crates/language_model/": PerDirectoryConfig(
+        bannedEnums=[
+            "AnthropicError",
+            "OpenRouterError",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
