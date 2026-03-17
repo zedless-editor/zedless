@@ -155,7 +155,9 @@ CONFIG.perDirectory = {
             "AnthropicEventType",
             "ClaudeCodeOnboardingModal",
             "EndTrialUpsell",
+            "OnboardingUpsell",
             "ThreadFeedbackState",
+            "TrialEndUpsell",
         ],
         bannedActions=[
             "OpenAcpOnboardingModal",
@@ -169,6 +171,7 @@ CONFIG.perDirectory = {
             "render_feedback_feedback_editor",
             "render_onboarding",
             "render_trial_end_upsell",
+            "render_zed_plan_info",
             "report_anthropic_event",
             "should_render_onboarding",
             "should_render_trial_end_upsell",
@@ -176,6 +179,7 @@ CONFIG.perDirectory = {
         ],
         bannedArguments=[
             "enable_feedback",
+            "last_configuration_error_telemetry",
             "onboarding",
             "thread_feedback",
         ],
