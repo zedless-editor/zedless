@@ -828,6 +828,17 @@ with chdir("source"):
                     }
                 }
             }, delimiter="|"))
+            rules.extend(removeElementFromDelimitedList(target, {
+                "kind": "tuple_expression",
+                "pattern": f"($_::{variant}, $$$)",
+                "inside": {
+                    "kind": "array_expression"
+                }
+            }))
+            rules.extend(removeMethodCall("item", {
+                "kind": "scoped_identifier",
+                "pattern": f"$_::{variant}"
+            }))
             rules.extend(nullifyIfStatement(target, [
                 f"$$$ == $_::{variant}",
                 f"$$$ == $_::{variant} && $$$",
