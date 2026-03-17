@@ -100,6 +100,7 @@ CONFIG.perDirectory = {
             "telemetry_report_accepted_edits",
             "telemetry_report_rejected_edits",
             "telemetry_settings_content",
+            "telemetry_string",
         ],
         bannedStructs=[
             "ActionLogTelemetry",
