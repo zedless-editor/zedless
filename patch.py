@@ -978,7 +978,32 @@ with chdir("source"):
     rules.extend(unimplementFunction("download_server_binary_locally", target="crates/remote_connection/"))
     rules.extend(unimplementFunction("get_download_url", target="crates/remote_connection/"))
 
-    # Cleanup 
+    # For whatever reason, this function is implemented in the anthropic crate, which is banned.
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "source_file",
+        "pattern": "$ALL",
+        "has": {
+            "kind": "call_expression",
+            "pattern": "parse_prompt_too_long($$$)",
+            "stopBy": "end"
+        },
+        "not": {
+            "has": {
+                "kind": "function_item",
+                "has": {
+                    "field": "name",
+                    "pattern": "parse_prompt_too_long"
+                }
+            }
+        }
+    },
+    "$ALL\nfn parse_prompt_too_long(message: &str) -> Option<u64> {\n"
+    "    message.strip_prefix(\"prompt is too long: \")?\n"
+    "        .split_once(\" tokens\")?\n"
+    "        .0.parse().ok()\n}\n"
+    ))
+
+    # Cleanup
     rules.extend(deletePatterns("crates/", "rust", [
         "if $$$ {} else {}"
     ]))
