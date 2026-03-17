@@ -463,6 +463,8 @@ with chdir("source"):
                 for crate in cratesToDelete:
                     if "dependencies" in data and crate in data["dependencies"]:
                         del data["dependencies"][crate]
+                    if "dev-dependencies" in data and crate in data["dev-dependencies"]:
+                        del data["dev-dependencies"][crate]
                 write(data)
 
     for (crate, mod) in CONFIG.bannedModules:
