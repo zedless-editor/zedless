@@ -54,6 +54,9 @@ CONFIG.bannedCrates = [
 ]
 
 CONFIG.bannedModules = [
+    ("agent_servers", "claude"),
+    ("agent_servers", "codex"),
+    ("agent_servers", "gemini"),
     ("agent_ui", "acp_onboarding_modal"),
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "end_trial_upsell"),
@@ -201,6 +204,10 @@ CONFIG.perDirectory = {
             "onboarding",
         ],
         bannedEnumVariants=[
+            "ClaudeAgent",
+            "ClaudeCode",
+            "Codex",
+            "Gemini",
             "Mercury",
             "Sweep",
         ]
