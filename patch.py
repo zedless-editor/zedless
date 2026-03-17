@@ -401,6 +401,20 @@ with chdir("source"):
         rules.extend(deletePatterns("crates/zed/", "rust", [
             f"{crate}::init($$$);"
         ]))
+        rules.extend(deleteDeclarationsAdvanced("crates/", {
+            "kind": "impl_item",
+            "has": {
+                "field": "trait",
+                "kind": "generic_type",
+                "has": {
+                    "kind": "type_arguments",
+                    "has": {
+                        "kind": "scoped_type_identifier",
+                        "regex": f"^{crate}::"
+                    }
+                }
+            }
+        }))
 
     crateIdentifiers = [{ "pattern": crate } for crate in CONFIG.bannedCrates]
     rules.extend(mkRule("crates/", "rust", {
