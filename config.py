@@ -109,6 +109,8 @@ CONFIG.perDirectory = {
             "SystemSpecs",
             "Telemetry",
             "TelemetrySettings",
+            "TelemetrySettingsContent",
+            "TelemetrySource",
             "TelemetryState",
             "ZedAiOnboarding",
         ],
