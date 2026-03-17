@@ -116,11 +116,15 @@ CONFIG.perDirectory = {
             "ZedAiOnboarding",
         ],
         bannedArguments=[
+            "enable_telemetry",
             "llm_api_token",
             "telemetry",
         ],
         bannedLocals=[
+            "agent_telemetry_id",
+            "enable_telemetry",
             "metrics_id",
+            "model_telemetry_id",
             "system_id",
             "telemetry",
         ]
@@ -168,6 +172,10 @@ CONFIG.perDirectory = {
         ],
         bannedFunctions=[
             "emit_configuration_error_telemetry_if_needed",
+            "emit_load_error_telemetry",
+            "emit_thread_error_telemetry",
+            "emit_token_limit_telemetry_if_needed",
+            "fire_started_telemetry",
             "handle_feedback_click",
             "render_feedback_feedback_editor",
             "render_onboarding",
@@ -181,6 +189,7 @@ CONFIG.perDirectory = {
         bannedArguments=[
             "enable_feedback",
             "last_configuration_error_telemetry",
+            "last_token_limit_telemetry",
             "onboarding",
             "thread_feedback",
         ],
