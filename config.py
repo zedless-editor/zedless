@@ -212,6 +212,8 @@ CONFIG.perDirectory = {
             "should_render_onboarding",
             "should_render_trial_end_upsell",
             "submit_feedback_message",
+            "thumbs_down",
+            "thumbs_up",
         ],
         bannedArguments=[
             "enable_feedback",
