@@ -830,14 +830,33 @@ with chdir("source"):
             ]))
 
         for variant in cfg.bannedEnumVariants:
+            scopedIdentifier = {
+                "kind": "scoped_identifier",
+                "pattern": f"$_::{variant}"
+            }
             rules.extend(deleteDeclarations("enum_variant", variant, target=target))
             rules.extend(deletePatternsAdvanced(target, "rust", "match_arm", [
                 {
                     "has": {
                         "kind": "match_pattern",
                         "has": {
-                            "kind": "scoped_identifier",
-                            "pattern": f"$_::{variant}"
+                            "any": [
+                                scopedIdentifier,
+                                {
+                                    "kind": "tuple_struct_pattern",
+                                    "all": [
+                                        {
+                                            "has": {
+                                                "field": "type",
+                                                "pattern": "Some"
+                                            }
+                                        },
+                                        {
+                                            "has": scopedIdentifier,
+                                        }
+                                    ]
+                                },
+                            ]
                         }
                     }
                 }
@@ -859,10 +878,7 @@ with chdir("source"):
                     "kind": "array_expression"
                 }
             }))
-            rules.extend(removeMethodCall("item", {
-                "kind": "scoped_identifier",
-                "pattern": f"$_::{variant}"
-            }))
+            rules.extend(removeMethodCall("item", scopedIdentifier))
             rules.extend(nullifyIfStatement(target, [
                 f"$$$ == $_::{variant}",
                 f"$$$ == $_::{variant} && $$$",
