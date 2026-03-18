@@ -169,6 +169,8 @@ CONFIG.perDirectory = {
             "initial_project_snapshot",
         ],
         bannedLocals=[
+            "copilot_enabled",
+            "copilot_enabled_for_language",
             "initial_project_snapshot",
         ]
     ),
@@ -301,15 +303,35 @@ CONFIG.perDirectory = {
             "build_copilot_context_menu",
             "build_copilot_start_menu",
             "build_supermaven_context_menu",
+            "copilot_settings_url",
             "feature_gate_predict_edits_actions",
+            "hide_copilot",
+            "test_copilot_settings_url_with_enterprise_uri",
+            "test_copilot_settings_url_with_enterprise_uri_trailing_slash",
+            "test_copilot_settings_url_without_enterprise_uri",
         ],
         bannedActions=[
             "RatePredictions",
+        ],
+        bannedStructs=[
+            "CopilotErrorToast",
         ]
     ),
     "crates/editor/": PerDirectoryConfig(
         bannedFunctions=[
             "report_editor_event",
+        ]
+    ),
+    "crates/language/": PerDirectoryConfig(
+        bannedStructs=[
+            "CopilotSettings",
+        ],
+        bannedArguments=[
+            "copilot",
+        ],
+        bannedLocals=[
+            "copilot",
+            "copilot_settings",
         ]
     ),
     "crates/language_model/": PerDirectoryConfig(
@@ -324,6 +346,19 @@ CONFIG.perDirectory = {
         ],
         bannedLocals=[
             "copilot_enabled",
+        ]
+    ),
+    "crates/paths/": PerDirectoryConfig(
+        bannedFunctions=[
+            "copilot_dir",
+        ]
+    ),
+    "crates/project/": PerDirectoryConfig(
+        bannedFunctions=[
+            "copilot_state_for_project",
+        ],
+        bannedArguments=[
+            "copilot_log_subscription",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
@@ -350,6 +385,12 @@ CONFIG.perDirectory = {
             "Mercury",
             "Supermaven",
             "Sweep",
+        ],
+        bannedStructs=[
+            "CopilotSettingsContent",
+        ],
+        bannedArguments=[
+            "copilot",
         ]
     ),
     "crates/settings_ui/": PerDirectoryConfig(
