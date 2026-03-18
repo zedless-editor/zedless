@@ -113,7 +113,12 @@ CONFIG.perDirectory = {
             "generate_telemetry",
             "register_zed_web_search_provider",
             "render_telemetry_section",
+            "report_anthropic_event",
+            "report_call_event",
             "report_discovered_project_type_events",
+            "report_edit_prediction_event",
+            "report_editor_event",
+            "report_inline_completion_event",
             "send_telemetry",
             "set_authenticated_user_info",
             "telemetry",
@@ -204,7 +209,6 @@ CONFIG.perDirectory = {
             "render_onboarding",
             "render_trial_end_upsell",
             "render_zed_plan_info",
-            "report_anthropic_event",
             "should_render_onboarding",
             "should_render_trial_end_upsell",
             "submit_feedback_message",
@@ -239,9 +243,6 @@ CONFIG.perDirectory = {
             "AnthropicCompletionType",
             "AnthropicEventData",
             "AnthropicEventType",
-        ],
-        bannedFunctions=[
-            "report_anthropic_event",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
@@ -316,11 +317,6 @@ CONFIG.perDirectory = {
         ],
         bannedStructs=[
             "CopilotErrorToast",
-        ]
-    ),
-    "crates/editor/": PerDirectoryConfig(
-        bannedFunctions=[
-            "report_editor_event",
         ]
     ),
     "crates/language/": PerDirectoryConfig(
