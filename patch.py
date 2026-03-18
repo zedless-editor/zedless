@@ -706,7 +706,12 @@ with chdir("source"):
                         "kind": "call_expression",
                         "has": {
                             "kind": "identifier",
-                            "pattern": function
+                            "pattern": function,
+                            "stopBy": {
+                                "not": {
+                                    "kind": "call_expression,field_expression"
+                                }
+                            }
                         },
                     },
                     {
