@@ -62,6 +62,8 @@ CONFIG.bannedCrates = [
     "lmstudio",
     "mistral",
     "open_router",
+    "supermaven",
+    "supermaven_api",
     "telemetry",
     "telemetry_events",
     "vercel",
@@ -225,6 +227,7 @@ CONFIG.perDirectory = {
             "Copilot",
             "Gemini",
             "Mercury",
+            "Supermaven",
             "Sweep",
         ]
     ),
@@ -277,6 +280,7 @@ CONFIG.perDirectory = {
         bannedEnumVariants=[
             "Copilot",
             "Mercury",
+            "Supermaven",
             "Sweep",
         ]
     ),
@@ -290,11 +294,13 @@ CONFIG.perDirectory = {
         bannedEnumVariants=[
             "Copilot",
             "Mercury",
+            "Supermaven",
             "Sweep",
         ],
         bannedFunctions=[
             "build_copilot_context_menu",
             "build_copilot_start_menu",
+            "build_supermaven_context_menu",
             "feature_gate_predict_edits_actions",
         ],
         bannedActions=[
@@ -342,6 +348,7 @@ CONFIG.perDirectory = {
         bannedEnumVariants=[
             "Copilot",
             "Mercury",
+            "Supermaven",
             "Sweep",
         ]
     ),
@@ -377,6 +384,7 @@ CONFIG.perDirectory = {
         bannedEnumVariants=[
             "Copilot",
             "Mercury",
+            "Supermaven",
             "Sweep",
         ]
     )
