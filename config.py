@@ -51,6 +51,7 @@ CONFIG.bannedCrates = [
     "anthropic",
     "auto_update",
     "auto_update_ui",
+    "aws_http_client",
     "bedrock",
     "collab",
     "copilot",
