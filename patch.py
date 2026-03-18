@@ -964,7 +964,31 @@ with chdir("source"):
     }, {
         "template": "(\"ZEDLESS\", super::OpenBrowser { url: \"https://zedless.org\".into() })"
     }))
-    
+
+    rules.extend(mkRule("crates/settings_content/", "rust", {
+        "kind": "enum_variant",
+        "has": {
+            "field": "name",
+            "pattern": "None"
+        },
+        "inside": {
+            "kind": "enum_variant_list",
+            "inside": {
+                "kind": "enum_item",
+                "has": {
+                    "field": "name",
+                    "regex": "^EditPredictionProvider$"
+                }
+            }
+        },
+        "not": {
+            "follows": {
+                "kind": "attribute_item",
+                "pattern": "#[default]"
+            }
+        }
+    }, "#[default]\nNone"))
+
     rules.extend(removeMethodCall("when", {
         "pattern": "cx.has_flag::<PredictEditsRatePredictionsFeatureFlag>()",
     }, matchRecursive=False))
