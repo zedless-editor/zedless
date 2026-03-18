@@ -53,6 +53,9 @@ CONFIG.bannedCrates = [
     "auto_update_ui",
     "bedrock",
     "collab",
+    "copilot",
+    "copilot_chat",
+    "copilot_ui",
     "deepseek",
     "feedback",
     "google_ai",
@@ -219,6 +222,7 @@ CONFIG.perDirectory = {
             "ClaudeAgent",
             "ClaudeCode",
             "Codex",
+            "Copilot",
             "Gemini",
             "Mercury",
             "Sweep",
@@ -241,6 +245,7 @@ CONFIG.perDirectory = {
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
+            "copilot",
             "llm_token",
             "mercury",
             "onboarding",
@@ -257,38 +262,62 @@ CONFIG.perDirectory = {
         ],
         bannedActions=[
             "OpenZedPredictOnboarding",
+            "Reinstall",
+            "SignIn",
+            "SignOut",
         ],
         bannedFunctions=[
+            "copilot_for_project",
             "has_mercury_api_token",
             "has_sweep_api_token",
             "is_prediction_rated",
             "rate_prediction",
+            "start_copilot_for_project",
         ],
         bannedEnumVariants=[
+            "Copilot",
             "Mercury",
             "Sweep",
         ]
     ),
     "crates/edit_prediction_ui/": PerDirectoryConfig(
         bannedLocals=[
+            "copilot",
+            "copilot_config",
             "mercury_api_token_task",
             "sweep_api_token_task",
         ],
         bannedEnumVariants=[
+            "Copilot",
             "Mercury",
             "Sweep",
         ],
         bannedFunctions=[
+            "build_copilot_context_menu",
+            "build_copilot_start_menu",
             "feature_gate_predict_edits_actions",
         ],
         bannedActions=[
             "RatePredictions",
         ]
     ),
+    "crates/editor/": PerDirectoryConfig(
+        bannedFunctions=[
+            "report_editor_event",
+        ]
+    ),
     "crates/language_model/": PerDirectoryConfig(
         bannedEnums=[
             "AnthropicError",
             "OpenRouterError",
+        ]
+    ),
+    "crates/language_tools/": PerDirectoryConfig(
+        bannedFunctions=[
+            "try_ensure_copilot_for_project",
+        ],
+        bannedLocals=[
+            "copilot_enabled",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
@@ -311,6 +340,7 @@ CONFIG.perDirectory = {
     ),
     "crates/settings_content/": PerDirectoryConfig(
         bannedEnumVariants=[
+            "Copilot",
             "Mercury",
             "Sweep",
         ]
@@ -320,6 +350,7 @@ CONFIG.perDirectory = {
             "auto_update_section",
             "privacy_section",
             "render_api_key_provider",
+            "render_github_copilot_provider",
         ]
     ),
     "crates/zed/": PerDirectoryConfig(
@@ -331,8 +362,10 @@ CONFIG.perDirectory = {
             "installation_id",
             "parse_zed_link",
             "system_id",
+            "register_backward_compatible_actions",
         ],
         bannedLocals=[
+            "copilot_chat_configuration",
             "installation_id",
             "is_zed_link",
             "system_specs",
@@ -342,6 +375,7 @@ CONFIG.perDirectory = {
             "IdType"
         ],
         bannedEnumVariants=[
+            "Copilot",
             "Mercury",
             "Sweep",
         ]
