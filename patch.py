@@ -640,6 +640,8 @@ with chdir("source"):
                 f"$_::{function}($$$);",
                 f"$_.$_().{function}().$_($$$);",
                 f"let $$$ = $_.{function}();",
+                f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
+                f"$_.update(cx, |$$$| $_.{function}($$$))?;",
             ]))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
