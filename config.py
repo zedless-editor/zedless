@@ -367,6 +367,7 @@ CONFIG.perDirectory = {
         bannedFunctions=[
             "render_connection_status",
             "render_sign_in_button",
+            "render_user_menu_button",
             "toggle_update_simulation",
         ],
         bannedStructs=[
