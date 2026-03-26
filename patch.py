@@ -963,6 +963,10 @@ with chdir("source"):
                 }
             }))
 
+        for function in cfg.disabledFunctions:
+            rules.extend(disableAnyhowFunction(target, function))
+            rules.extend(disableOptionFunction(target, function))
+
     rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
         "kind": "call_expression",
         "all": [
