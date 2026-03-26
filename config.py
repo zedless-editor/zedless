@@ -85,6 +85,7 @@ CONFIG.bannedModules = [
     ("edit_prediction_ui", "rate_prediction_modal"),
     ("language_model", "telemetry"),
     ("project", "telemetry_snapshot"),
+    ("title_bar", "onboarding_banner"),
     ("title_bar", "update_version"),
     ("web_search_providers", "cloud"),
     ("zed", "reliability"),
@@ -370,6 +371,8 @@ CONFIG.perDirectory = {
     ),
     "crates/title_bar/": PerDirectoryConfig(
         bannedArguments=[
+            "banner",
+            "show_onboarding_banner",
             "update_version",
         ],
         bannedFunctions=[
@@ -382,6 +385,7 @@ CONFIG.perDirectory = {
             "UpdateVersion",
         ],
         bannedLocals=[
+            "banner",
             "is_signed_in",
             "show_update_badge",
             "update_version",
@@ -435,6 +439,9 @@ CONFIG.perDirectory = {
             "Mercury",
             "Supermaven",
             "Sweep",
+        ],
+        bannedActions=[
+            "RestoreBanner",
         ]
     )
 }

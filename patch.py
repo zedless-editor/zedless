@@ -736,6 +736,7 @@ with chdir("source"):
                 f"if !$_.{arg}.is_empty() || $$$ {{ $$$ }}",
                 f"if $_::get_global(cx).{arg} {{ $$$ }}",
                 f"if $_::get_global(cx).{arg} && $$$ {{ $$$ }}",
+                f"if $_.{arg} {{ $$$ }}",
             ]))
             rules.extend(removeMethodCall(
                 "child",
@@ -817,7 +818,14 @@ with chdir("source"):
             }, target="crates/agent_ui/", matchRecursive=False))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
-                    "pattern": "workspace.register_action($$$);",
+                    "any": [
+                        {
+                            "pattern": "workspace.register_action($$$);"
+                        },
+                        {
+                            "pattern": "cx.on_action($$$);"
+                        }
+                    ],
                     "has": match.rust.functionCallWith(withinArguments={
                         "has": {
                             "kind": "closure_parameters",
