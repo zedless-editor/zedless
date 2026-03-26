@@ -180,6 +180,11 @@ CONFIG.perDirectory = {
             "initial_project_snapshot",
         ]
     ),
+    "crates/agent_servers/": PerDirectoryConfig(
+        bannedFunctions=[
+            "api_key_for_gemini_cli"
+        ]
+    ),
     "crates/agent_ui/": PerDirectoryConfig(
         bannedStructs=[
             "AcpOnboardingModal",
@@ -219,6 +224,7 @@ CONFIG.perDirectory = {
             "enable_feedback",
             "last_configuration_error_telemetry",
             "last_token_limit_telemetry",
+            "on_boarding_upsell_dismissed",
             "onboarding",
             "thread_feedback",
         ],
@@ -281,6 +287,7 @@ CONFIG.perDirectory = {
             "has_sweep_api_token",
             "is_prediction_rated",
             "rate_prediction",
+            "refresh_available_experiments",
             "start_copilot_for_project",
         ],
         bannedEnumVariants=[
@@ -337,6 +344,7 @@ CONFIG.perDirectory = {
         bannedEnums=[
             "AnthropicError",
             "OpenRouterError",
+            "Speed",
         ]
     ),
     "crates/language_tools/": PerDirectoryConfig(

@@ -642,6 +642,7 @@ with chdir("source"):
                 f"let $$$ = $_.{function}();",
                 f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
                 f"$_.update(cx, |$$$| $_.{function}($$$))?;",
+                f"if let $_ = cx.update({function}).await.ok() {{ $$$ }}",
             ]))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
