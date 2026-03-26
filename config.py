@@ -382,6 +382,16 @@ CONFIG.perDirectory = {
             "copilot_enabled",
         ]
     ),
+    "crates/languages/": PerDirectoryConfig(
+        disabledFunctions=[
+            "cached_server_binary",
+            "fetch_latest_server_version",
+            "fetch_server_binary",
+        ],
+        bannedFunctions=[
+            "get_cached_server_binary",
+        ]
+    ),
     "crates/paths/": PerDirectoryConfig(
         bannedFunctions=[
             "copilot_dir",
