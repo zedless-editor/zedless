@@ -1,3 +1,5 @@
+import match
+
 def functionCall(name):
     return {
         "kind": "call_expression",
@@ -29,14 +31,22 @@ def functionCallWith(identifier=None, withinArguments=None, matchRecursive=True)
     }
 
 
-def functionDefinition(name):
+def functionDefinition(name, returnType=None):
     return {
-        "kind": "function_item",
-        "has": {
-            "field": "name",
-            "pattern": name
-        }
-    }
+        "kind": "function_item"
+    } | match.all(
+        {
+            "has": {
+                "field": "name",
+                "pattern": name
+            }
+        },
+        {
+            "has": {
+                "field": "return_type"
+            } | returnType
+        } if returnType else {}
+    )
 
 def insideMethodCall(name):
     return {
