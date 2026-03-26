@@ -142,20 +142,57 @@ def deleteDeclarations(kind, name, identifierField="name", target="crates/"):
         }
     })
 
-def unimplementFunction(name, target="crates/"):
+def replaceFunctionBody(target, selector, body):
     yield from editAstAdvanced(
         target,
         "rust",
         [
             {
                 "kind": "block",
-                "inside": match.rust.functionDefinition(name),
+                "inside": selector,
                 "not": {
-                    "pattern": "{ unimplemented!() }"
+                    "pattern": body
                 }
             }
         ],
+        body
+    )
+
+def unimplementFunction(name, target="crates/"):
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name),
         "{ unimplemented!() }"
+    )
+
+def disableAnyhowFunction(target, name, errorMessage=None):
+    if not errorMessage:
+        errorMessage = f"function {name} has been disabled"
+    body = f"{{\n    Err(anyhow::anyhow!(\"zedless: {errorMessage}\"))\n}}"
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name, returnType={
+            "kind": "generic_type",
+            "has": {
+                "field": "type",
+                "regex": "^Result$"
+            }
+        }),
+        body
+    )
+
+def disableOptionFunction(target, name):
+    body = "{ None }"
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name, returnType={
+            "kind": "generic_type",
+            "has": {
+                "field": "type",
+                "regex": "^Option$"
+            }
+        }),
+        body
     )
 
 def removeSymbolImports(symbol, target="crates/"):
