@@ -104,6 +104,7 @@ CONFIG.bannedLanguageModelProviders = [
     LanguageModelProvider("OpenAi", "openai"),
     LanguageModelProvider("OpenRouter", "open_router"),
     LanguageModelProvider("Vercel", "vercel"),
+    LanguageModelProvider("VercelAiGateway", "vercel_ai_gateway"),
     LanguageModelProvider("XAi", "x_ai"),
 ]
 
