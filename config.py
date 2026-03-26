@@ -392,6 +392,16 @@ CONFIG.perDirectory = {
             "get_cached_server_binary",
         ]
     ),
+    "crates/node_runtime/": PerDirectoryConfig(
+        disabledFunctions=[
+            "binary_path",
+            "npm_command",
+            "npm_install_packages",
+            "npm_package_installed_version",
+            "npm_package_latest_version",
+            "run_npm_subcommand",
+        ]
+    ),
     "crates/paths/": PerDirectoryConfig(
         bannedFunctions=[
             "copilot_dir",
