@@ -195,6 +195,17 @@ def disableOptionFunction(target, name):
         body
     )
 
+def disableBoolFunction(target, name):
+    body = "{ false }"
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name, returnType={
+            "kind": "primitive_type",
+            "pattern": "bool"
+        }),
+        body
+    )
+
 def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
     yield from editAstAdvanced(
@@ -966,6 +977,7 @@ with chdir("source"):
         for function in cfg.disabledFunctions:
             rules.extend(disableAnyhowFunction(target, function))
             rules.extend(disableOptionFunction(target, function))
+            rules.extend(disableBoolFunction(target, function))
 
     rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
         "kind": "call_expression",
