@@ -167,6 +167,9 @@ CONFIG.perDirectory = {
             "model_telemetry_id",
             "system_id",
             "telemetry",
+        ],
+        bannedEnums=[
+            "TelemetrySpawnLocation",
         ]
     ),
     "crates/activity_indicator/": PerDirectoryConfig(
@@ -258,6 +261,9 @@ CONFIG.perDirectory = {
             "Mercury",
             "Supermaven",
             "Sweep",
+        ],
+        bannedEnums=[
+            "ThreadFeedback",
         ]
     ),
     "crates/assistant_text_thread/": PerDirectoryConfig(
@@ -340,6 +346,11 @@ CONFIG.perDirectory = {
         ],
         bannedStructs=[
             "CopilotErrorToast",
+        ]
+    ),
+    "crates/editor/": PerDirectoryConfig(
+        bannedEnums=[
+            "ReportEditorEvent"
         ]
     ),
     "crates/language/": PerDirectoryConfig(
