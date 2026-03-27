@@ -443,7 +443,7 @@ CONFIG.perDirectory = {
             "system_specs",
             "telemetry_log_item",
         ],
-        bannedStructs=[
+        bannedEnums=[
             "IdType"
         ],
         bannedEnumVariants=[
