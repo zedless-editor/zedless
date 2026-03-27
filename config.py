@@ -438,6 +438,7 @@ CONFIG.perDirectory = {
     ),
     "crates/zed/": PerDirectoryConfig(
         bannedArguments=[
+            "join_channel",
             "open_channel_notes",
         ],
         bannedFunctions=[
