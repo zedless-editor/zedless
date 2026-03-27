@@ -904,6 +904,9 @@ with chdir("source"):
             ], "expression_statement"))
 
         for enum in cfg.bannedEnums:
+            rules.extend(deleteDeclarations("enum_item", enum, target=target))
+            rules.extend(deleteDeclarations("impl_item", enum, identifierField="type", target=target))
+            rules.extend(removeSymbolImports(enum))
             rules.extend(deleteDeclarationsAdvanced(target, {
                 "kind": "impl_item",
                 "has": {
