@@ -979,47 +979,7 @@ with chdir("source"):
             rules.extend(disableOptionFunction(target, function))
             rules.extend(disableBoolFunction(target, function))
 
-    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
-        "kind": "call_expression",
-        "all": [
-            {
-                "has": {
-                    "kind": "scoped_identifier",
-                    "pattern": "MenuItem::action"
-                }
-            },
-            {
-                "has": {
-                    "kind": "arguments",
-                    "has": {
-                        "kind": "string_literal",
-                        "any": [
-                            { "pattern": f"\"{actionName}\"" }
-                            for actionName in [
-                                "Check for Updates",
-                                "Email Us...",
-                                "View Release Notes Locally",
-                                "View Telemetry",
-                                "Zed Repository",
-                                "Zed Twitter",
-                            ]
-                        ]
-                    }
-                }
-            }
-        ]
-    }, {
-        "template": "",
-        "expandEnd": {
-            "regex": ","
-        }
-    }))
-
-    # HACK: ast-grep doesn't seem to support recursive language injections,
-    # so the rule above doesn't work (yet). It also seems to be impossible to
-    # match the entire call_expression with the unparsed AST nodes, so we do
-    # the next best thing: replace the action with a different one.
-    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+    bannedMenuItemArgumentsSelector = {
         "kind": "token_tree",
         "follows": {
             "kind": "identifier",
@@ -1031,15 +991,74 @@ with chdir("source"):
                 { "pattern": f"\"{actionName}\"" }
                 for actionName in [
                     "Check for Updates",
+                    "Email Us...",
+                    "Join the Team",
                     "View Release Notes Locally",
                     "View Telemetry",
-                    "Zed Repository",
                 ]
             ]
         }
+    }
+    def stackPrecedes(item, count):
+        if count == 1:
+            return {
+                "kind": "identifier",
+                "precedes": item
+            }
+        else:
+            return stackPrecedes({ "precedes": item }, count-1)
+    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+        "any": [
+            bannedMenuItemArgumentsSelector,
+            stackPrecedes(bannedMenuItemArgumentsSelector, 1),
+            stackPrecedes(bannedMenuItemArgumentsSelector, 3)
+        ]
     }, {
-        "template": "(\"ZEDLESS\", super::OpenBrowser { url: \"https://zedless.org\".into() })"
+        "template": "",
+        "expandEnd": {
+            "regex": "^,$"
+        },
+        "expandStart": {
+            "regex": "^::$"
+        }
     }))
+    for (originalActionName, actionName, url) in [
+        ("About Zed", "About Zedless", None),
+        ("Quit Zed", "Quit Zedless", None),
+        ("File Bug Report...", "File a bug report...", "https://github.com/zedless-editor/zedless/issues/new"),
+        ("Request Feature...", "Request a feature...", "https://github.com/zedless-editor/zedless/discussions/new?category=ideas"),
+        ("Documentation", "Documentation (zed.dev)", None),
+        ("Zed Repository", "Zedless Repository", "https://github.com/zedless-editor/zedless"),
+        ("Zed Twitter", "Zedless on Matrix", "https://matrix.to/#/#zedless:privatevoid.net"),
+    ]:
+        # HACK
+        assert actionName != originalActionName
+        if url:
+            rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+                "kind": "token_tree",
+                "follows": {
+                    "kind": "identifier",
+                    "pattern": "action",
+                },
+                "has": {
+                    "kind": "string_literal",
+                    "pattern": f"\"{originalActionName}\""
+                }
+            }, f"(\"{actionName}\", super::OpenBrowser {{ url: \"{url}\".into() }})"))
+        else:
+            rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", {
+                "kind": "string_literal",
+                "pattern": f"\"{originalActionName}\"",
+                "inside": {
+                    "kind": "token_tree",
+                    "follows": {
+                        "kind": "identifier",
+                        "pattern": "action"
+                    }
+                }
+            }, f"\"{actionName}\""))
+
+    rules.extend(mkRule("crates/zed/src/zed/app_menus.rs", "rust", { "pattern": "\"Zed\"" }, "\"Zedless\""))
 
     rules.extend(mkRule("crates/settings_content/", "rust", {
         "kind": "enum_variant",
