@@ -1,5 +1,7 @@
 # Zedless
 
+Matrix Room: [#zedless:privatevoid.net](https://matrix.to/#/#zedless:privatevoid.net)
+
 This is Zedless, a fork of Zed that's designed to be privacy-friendly and local-first.
 
 This repository contains scripts to patch the Zed source code.
