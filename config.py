@@ -390,6 +390,8 @@ CONFIG.perDirectory = {
         ],
         bannedFunctions=[
             "get_cached_server_binary",
+            "get_cached_ts_server_binary",
+            "get_cached_version_server_binary",
         ]
     ),
     "crates/node_runtime/": PerDirectoryConfig(
@@ -400,6 +402,14 @@ CONFIG.perDirectory = {
             "npm_package_installed_version",
             "npm_package_latest_version",
             "run_npm_subcommand",
+        ],
+        bannedFunctions=[
+            "build_npm_command_args",
+            "configure_npm_command",
+            "npm_command_env",
+            "path_with_node_binary_prepended",
+            "proxy_argument",
+            "test_proxy_argument_map_localhost_proxy",
         ]
     ),
     "crates/paths/": PerDirectoryConfig(
