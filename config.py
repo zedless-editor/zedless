@@ -24,6 +24,9 @@ class PerDirectoryConfig:
         self.bannedEnumVariants = bannedEnumVariants
         self.bannedEnums = bannedEnums
 
+class PerCrateConfig(PerDirectoryConfig):
+    pass
+
 class LanguageModelProvider:
     structPrefix: str
     crate: str
@@ -43,6 +46,7 @@ class Config:
     bannedCrates: list[str]
     bannedModules: list[tuple[str,str]]
     bannedLanguageModelProviders: list[LanguageModelProvider]
+    perCrate: dict[str, PerCrateConfig]
     perDirectory: dict[str, PerDirectoryConfig]
 
 CONFIG = Config()
@@ -107,6 +111,14 @@ CONFIG.bannedLanguageModelProviders = [
     LanguageModelProvider("VercelAiGateway", "vercel_ai_gateway"),
     LanguageModelProvider("XAi", "x_ai"),
 ]
+
+CONFIG.perCrate = {
+    "anthropic": PerCrateConfig(
+        bannedEnums=[
+            "Speed"
+        ]
+    )
+}
 
 CONFIG.perDirectory = {
     "crates/": PerDirectoryConfig(
@@ -346,7 +358,6 @@ CONFIG.perDirectory = {
         bannedEnums=[
             "AnthropicError",
             "OpenRouterError",
-            "Speed",
         ]
     ),
     "crates/language_tools/": PerDirectoryConfig(

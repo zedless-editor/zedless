@@ -631,6 +631,10 @@ with chdir("source"):
         }
     ))
 
+    for (crate, cfg) in CONFIG.perCrate.items():
+        for enum in cfg.bannedEnums:
+            rules.extend(deleteDeclarations("impl_item", f"{crate}::{enum}", identifierField="type"))
+
     for (target, cfg) in CONFIG.perDirectory.items():
         for function in cfg.bannedFunctions:
             rules.extend(deleteDeclarations("function_signature_item", function, target=target))
