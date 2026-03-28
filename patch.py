@@ -1165,3 +1165,7 @@ with chdir("source"):
     }, ""))
 
     runRules(rules)
+
+    run([
+        "cp", "-r", "../overlay/.", "."
+    ]).check_returncode()
