@@ -96,6 +96,7 @@ CONFIG.bannedModules = [
     ("language_model", "telemetry"),
     ("project", "telemetry_snapshot"),
     ("title_bar", "onboarding_banner"),
+    ("title_bar", "plan_chip"),
     ("title_bar", "update_version"),
     ("web_search_providers", "cloud"),
     ("zed", "reliability"),
@@ -455,6 +456,7 @@ CONFIG.perDirectory = {
         ],
         bannedFunctions=[
             "render_connection_status",
+            "render_organization_menu_button",
             "render_sign_in_button",
             "render_user_menu_button",
             "toggle_update_simulation",
