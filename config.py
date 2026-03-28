@@ -7,6 +7,7 @@ class PerDirectoryConfig:
     bannedEnumVariants: list[str]
     bannedEnums: list[str]
     disabledFunctions: list[str]
+    stringReplacements: list[tuple[str,str]]
     def __init__(
         self,
         bannedFunctions=[],
@@ -17,6 +18,7 @@ class PerDirectoryConfig:
         bannedEnumVariants=[],
         bannedEnums=[],
         disabledFunctions=[],
+        stringReplacements=[],
     ):
         self.bannedFunctions = bannedFunctions
         self.bannedStructs = bannedStructs
@@ -26,6 +28,7 @@ class PerDirectoryConfig:
         self.bannedEnumVariants = bannedEnumVariants
         self.bannedEnums = bannedEnums
         self.disabledFunctions = disabledFunctions
+        self.stringReplacements = stringReplacements
 
 class PerCrateConfig(PerDirectoryConfig):
     pass

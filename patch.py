@@ -979,6 +979,11 @@ with chdir("source"):
             rules.extend(disableOptionFunction(target, function))
             rules.extend(disableBoolFunction(target, function))
 
+        for (original, replacement) in cfg.stringReplacements:
+            rules.extend(mkRule(target, "rust", {
+                "pattern": f"\"{original}\""
+            }, f"\"{replacement}\""))
+
     bannedMenuItemArgumentsSelector = {
         "kind": "token_tree",
         "follows": {
