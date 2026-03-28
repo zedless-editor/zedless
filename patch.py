@@ -849,6 +849,14 @@ with chdir("source"):
             }, {
                 "template": "let ($A, $B) = if $$$COND {\n    ($ATHEN, $BTHEN)\n} else {\n    ($AELSE, $BELSE)\n};"
             }))
+            rules.extend(mkRule(target, "rust", {
+                "pattern": f"add_panel_when_ready({local}, $$$)"
+            }, {
+                "template": "",
+                "expandEnd": {
+                    "regex": "^,$"
+                }
+            }))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {

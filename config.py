@@ -504,9 +504,11 @@ CONFIG.perDirectory = {
             "register_backward_compatible_actions",
         ],
         bannedLocals=[
+            "channels_panel",
             "copilot_chat_configuration",
             "installation_id",
             "is_zed_link",
+            "notification_panel",
             "system_specs",
             "telemetry_log_item",
         ],
