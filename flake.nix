@@ -16,5 +16,13 @@
         ]))
       ];
     };
+
+    packages.${system} = {
+      zedless-source = pkgs.callPackage ./nix/source.nix { };
+      zedless = pkgs.callPackage ./nix/package.nix {
+        source = self.packages.${system}.zedless-source;
+      };
+      default = self.packages.${system}.zedless;
+    };
   };
 }

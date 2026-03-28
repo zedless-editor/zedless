@@ -1,2 +1,4 @@
 source/
 __pycache__/
+result
+result-*
