@@ -448,6 +448,21 @@ CONFIG.perDirectory = {
             "copilot_log_subscription",
         ]
     ),
+    "crates/remote/": PerDirectoryConfig(
+        bannedFunctions = [
+            "download_binary_on_server",
+            "extract_server_binary",
+            "extract_server_binary_posix",
+            "extract_server_binary_windows",
+            "get_download_url",
+            "upload_local_server_binary",
+        ]
+    ),
+    "crates/remote_connection/": PerDirectoryConfig(
+        bannedFunctions = [
+            "get_download_url",
+        ]
+    ),
     "crates/title_bar/": PerDirectoryConfig(
         bannedArguments=[
             "banner",

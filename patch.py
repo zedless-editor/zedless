@@ -1122,9 +1122,12 @@ with chdir("source"):
         }
     ], "action_log.keep_all_edits($A)"))
 
-    rules.extend(unimplementFunction("ensure_server_binary", target="crates/remote/"))
-    rules.extend(unimplementFunction("download_server_binary_locally", target="crates/remote_connection/"))
-    rules.extend(unimplementFunction("get_download_url", target="crates/remote_connection/"))
+    rules.extend(mkRule("crates/remote/", "rust", {
+        "kind": "block",
+        "pattern": "{ $$$PREV if binary_exists_on_server { return Ok(dst_path); } $$$ }"
+    }, {
+        "template": "{\n$$$PREV\nif binary_exists_on_server { Ok(dst_path) } else { Err(anyhow::anyhow!(\"zedless: no remote server binary found on target\")) }\n}"
+    }))
 
     # For whatever reason, this function is implemented in the anthropic crate, which is banned.
     rules.extend(mkRule("crates/", "rust", {
