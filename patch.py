@@ -1129,6 +1129,10 @@ with chdir("source"):
         "template": "{\n$$$PREV\nif binary_exists_on_server { Ok(dst_path) } else { Err(anyhow::anyhow!(\"zedless: no remote server binary found on target\")) }\n}"
     }))
 
+    rules.extend(deletePatterns("crates/", "rust", [
+        "if cx.is_staff() { $$$ }"
+    ]))
+
     # Cleanup
     rules.extend(deletePatterns("crates/", "rust", [
         "if $$$ {} else {}"
