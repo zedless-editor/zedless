@@ -834,6 +834,16 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
             ], "false"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "binary_expression"
+            } | match.any(
+                {
+                    "pattern": f"$OTHER || {local}"
+                },
+                {
+                    "pattern": f"{local} || $OTHER"
+                },
+            ), "$OTHER"))
             rules.extend(removeElementFromDelimitedList(target, {
                 "kind": "identifier",
                 "pattern": local,
