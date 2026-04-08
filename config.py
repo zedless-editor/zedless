@@ -299,6 +299,11 @@ CONFIG.perDirectory = {
             "AnthropicEventType",
         ]
     ),
+    "crates/cli/":  PerDirectoryConfig(
+        stringReplacements=[
+            ("zed", "zedless")
+        ]
+    ),
     "crates/command_palette/": PerDirectoryConfig(
         bannedLocals=[
             "is_zed_link",
