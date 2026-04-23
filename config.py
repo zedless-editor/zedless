@@ -90,6 +90,7 @@ CONFIG.bannedModules = [
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "end_trial_upsell"),
     ("client", "telemetry"),
+    ("client", "llm_token"),
     ("edit_prediction", "mercury"),
     ("edit_prediction", "onboarding_modal"),
     ("edit_prediction", "sweep_ai"),
@@ -150,6 +151,8 @@ CONFIG.perDirectory = {
             "telemetry_report_rejected_edits",
             "telemetry_settings_content",
             "telemetry_string",
+            "global_llm_token",
+            "needs_llm_token_refresh",
         ],
         bannedStructs=[
             "ActionLogTelemetry",
@@ -163,6 +166,7 @@ CONFIG.perDirectory = {
             "TelemetrySource",
             "TelemetryState",
             "ZedAiOnboarding",
+            "NeedsLlmTokenRefresh",
         ],
         bannedArguments=[
             "enable_telemetry",
@@ -304,6 +308,13 @@ CONFIG.perDirectory = {
     "crates/cli/":  PerDirectoryConfig(
         stringReplacements=[
             ("zed", "zedless")
+        ]
+    ),
+    "crates/client/": PerDirectoryConfig(
+        bannedFunctions=[
+            "clear_and_refresh_llm_token",
+            "refresh_llm_token",
+            "acquire_llm_token",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
