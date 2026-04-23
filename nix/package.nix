@@ -65,7 +65,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     rm -r $out/git/*/candle-book/
   '';
 
-  cargoHash = "sha256-0V1FamKm96yCKOaTUyROELdgs6olQ4d15WaWpNazpbQ=";
+  cargoHash = "sha256-T9YbDY7vram1nFRSG/9Qi1076HaCacHeNN88P0qmKGQ=";
 
   nativeBuildInputs = [
     cmake
