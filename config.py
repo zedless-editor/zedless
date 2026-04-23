@@ -70,6 +70,7 @@ CONFIG.bannedCrates = [
     "deepseek",
     "feedback",
     "google_ai",
+    "language_models_cloud",
     "lmstudio",
     "mistral",
     "open_router",
