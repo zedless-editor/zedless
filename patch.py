@@ -1141,6 +1141,14 @@ with chdir("source"):
             }
         }
     }, ""))
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "binary_expression",
+        "pattern": "$_ && $_",
+        "has": {
+            "kind": "boolean_literal",
+            "regex": "^false$"
+        }
+    }, "false"))
 
     runRules(rules)
 
