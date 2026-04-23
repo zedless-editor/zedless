@@ -1116,7 +1116,8 @@ with chdir("source"):
     ], "()", deleteStatements=True))
 
     rules.extend(deletePatterns("crates/", "rust", [
-        "let (telemetry, is_via_ssh) = { $$$ };"
+        "let (telemetry, is_via_ssh) = { $$$ };",
+        "use $$$::telemetry::{$$$};",
     ]))
 
     rules.extend(removeMethodCall("child", match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
