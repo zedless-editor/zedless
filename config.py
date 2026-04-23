@@ -459,6 +459,8 @@ CONFIG.perDirectory = {
             "npm_command_env",
             "path_with_node_binary_prepended",
             "proxy_argument",
+            "test_build_npm_command_args_inserts_prefix_before_subcommand",
+            "test_build_npm_command_args_keeps_entrypoint_before_prefix",
             "test_proxy_argument_map_localhost_proxy",
         ]
     ),
