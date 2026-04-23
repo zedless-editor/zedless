@@ -356,6 +356,7 @@ CONFIG.perDirectory = {
             "has_mercury_api_token",
             "has_sweep_api_token",
             "is_prediction_rated",
+            "mercury_has_payment_required_error",
             "rate_prediction",
             "refresh_available_experiments",
             "start_copilot_for_project",
@@ -372,6 +373,8 @@ CONFIG.perDirectory = {
             "copilot",
             "copilot_config",
             "mercury_api_token_task",
+            "mercury_has_error",
+            "mercury_payment_required",
             "sweep_api_token_task",
         ],
         bannedEnumVariants=[
