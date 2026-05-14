@@ -67,6 +67,7 @@ CONFIG.bannedCrates = [
     "copilot",
     "copilot_chat",
     "copilot_ui",
+    "crashes",
     "deepseek",
     "feedback",
     "google_ai",
@@ -555,19 +556,23 @@ CONFIG.perDirectory = {
         ],
         bannedFunctions=[
             "authenticate",
+            "crash_server",
             "installation_id",
             "parse_zed_link",
             "register_backward_compatible_actions",
+            "set_gpu_info",
             "set_user_info",
             "system_id",
         ],
         bannedLocals=[
             "channels_panel",
             "copilot_chat_configuration",
+            "crash_handler",
             "installation_id",
             "is_new_install",
             "is_zed_link",
             "notification_panel",
+            "should_install_crash_handler",
             "system_specs",
             "telemetry_log_item",
         ],
@@ -584,6 +589,7 @@ CONFIG.perDirectory = {
             "RestoreBanner",
         ],
         bannedStructs=[
+            "CrashHandler",
             "RefreshLlmTokenListener",
         ]
     )
