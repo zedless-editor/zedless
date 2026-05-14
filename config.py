@@ -319,9 +319,16 @@ CONFIG.perDirectory = {
     ),
     "crates/client/": PerDirectoryConfig(
         bannedFunctions=[
-            "clear_and_refresh_llm_token",
-            "refresh_llm_token",
             "acquire_llm_token",
+            "add_message_to_client_handler",
+            "clear_and_refresh_llm_token",
+            "connect_to_cloud",
+            "handle_message_to_client",
+            "refresh_llm_token",
+        ],
+        bannedArguments=[
+            "_handle_sign_out",
+            "_maintain_current_user",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
