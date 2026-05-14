@@ -691,6 +691,7 @@ with chdir("source"):
                 f"{function}($$$);",
                 f"$_::{function}($$$);",
                 f"$_.$_().{function}().$_($$$);",
+                f"self.{function}($$$).await.log_err();",
                 f"let $$$ = $_.{function}();",
                 f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
                 f"$_.update(cx, |$$$| $_.{function}($$$))?;",
