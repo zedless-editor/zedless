@@ -554,8 +554,9 @@ CONFIG.perDirectory = {
             "authenticate",
             "installation_id",
             "parse_zed_link",
-            "system_id",
             "register_backward_compatible_actions",
+            "set_user_info",
+            "system_id",
         ],
         bannedLocals=[
             "channels_panel",
