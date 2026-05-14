@@ -808,7 +808,8 @@ with chdir("source"):
             rules.extend(nullifyIfStatement(target, [
                 local,
                 f"{local} && $$$",
-                f"$$$ && {local}"
+                f"$$$ && {local}",
+                f"!{local}"
             ]))
             rules.extend(removeMethodCall("when", {
                 "kind": "identifier",
