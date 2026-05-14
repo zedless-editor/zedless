@@ -779,6 +779,9 @@ with chdir("source"):
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
             rules.extend(deleteDeclarations("impl_item", struct, identifierField="type", target=target))
             rules.extend(removeSymbolImports(struct))
+            rules.extend(deletePatterns(target, "rust", [
+                f"{struct}::register($$$);",
+            ]))
 
         for arg in cfg.bannedArguments:
             rules.extend(removeFieldsInDeclarations(arg, target=target))
