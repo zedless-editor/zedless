@@ -275,6 +275,7 @@ CONFIG.perDirectory = {
         ],
         bannedArguments=[
             "enable_feedback",
+            "is_new_install",
             "last_configuration_error_telemetry",
             "last_token_limit_telemetry",
             "new_user_onboarding",
@@ -288,6 +289,7 @@ CONFIG.perDirectory = {
             "anthropic_reporter",
             "comments_editor",
             "enable_thread_feedback",
+            "is_new_install",
             "is_signed_in",
             "onboarding",
         ],
@@ -547,6 +549,7 @@ CONFIG.perDirectory = {
     ),
     "crates/zed/": PerDirectoryConfig(
         bannedArguments=[
+            "is_new_install",
             "join_channel",
             "open_channel_notes",
         ],
@@ -562,6 +565,7 @@ CONFIG.perDirectory = {
             "channels_panel",
             "copilot_chat_configuration",
             "installation_id",
+            "is_new_install",
             "is_zed_link",
             "notification_panel",
             "system_specs",
