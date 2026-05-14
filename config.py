@@ -570,6 +570,9 @@ CONFIG.perDirectory = {
         ],
         bannedActions=[
             "RestoreBanner",
+        ],
+        bannedStructs=[
+            "RefreshLlmTokenListener",
         ]
     )
 }
