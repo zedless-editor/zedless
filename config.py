@@ -503,6 +503,16 @@ CONFIG.perDirectory = {
             "get_download_url",
         ]
     ),
+    "crates/remote_server/": PerDirectoryConfig(
+        bannedFunctions=[
+            "crash_server",
+            "handle_crash_files_requests",
+        ],
+        bannedLocals=[
+            "crash_handler",
+            "should_install_crash_handler",
+        ]
+    ),
     "crates/title_bar/": PerDirectoryConfig(
         bannedArguments=[
             "banner",
