@@ -341,6 +341,7 @@ CONFIG.perDirectory = {
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
+            "_fetch_experiments_task",
             "copilot",
             "llm_token",
             "mercury",
@@ -353,6 +354,7 @@ CONFIG.perDirectory = {
             "ZedPredictModal",
         ],
         bannedLocals=[
+            "fetch_experiments_task",
             "llm_token",
             "token",
         ],
