@@ -332,6 +332,7 @@ CONFIG.perDirectory = {
         bannedArguments=[
             "_handle_sign_out",
             "_maintain_current_user",
+            "system_id",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
