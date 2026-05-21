@@ -67,12 +67,15 @@ CONFIG.bannedCrates = [
     "copilot",
     "copilot_chat",
     "copilot_ui",
+    "crashes",
     "deepseek",
     "feedback",
     "google_ai",
+    "language_models_cloud",
     "lmstudio",
     "mistral",
     "open_router",
+    "opencode",
     "supermaven",
     "supermaven_api",
     "telemetry",
@@ -89,6 +92,7 @@ CONFIG.bannedModules = [
     ("agent_ui", "claude_agent_onboarding_modal"),
     ("agent_ui", "end_trial_upsell"),
     ("client", "telemetry"),
+    ("client", "llm_token"),
     ("edit_prediction", "mercury"),
     ("edit_prediction", "onboarding_modal"),
     ("edit_prediction", "sweep_ai"),
@@ -113,6 +117,8 @@ CONFIG.bannedLanguageModelProviders = [
     LanguageModelProvider("LmStudio", "lmstudio"),
     LanguageModelProvider("Mistral", "mistral"),
     LanguageModelProvider("OpenAi", "openai"),
+    LanguageModelProvider("OpenAiSubscribed", "openai_subscribed", lmProviderStructName="OpenAiSubscribedProvider"),
+    LanguageModelProvider("OpenCode", "opencode"),
     LanguageModelProvider("OpenRouter", "open_router"),
     LanguageModelProvider("Vercel", "vercel"),
     LanguageModelProvider("VercelAiGateway", "vercel_ai_gateway"),
@@ -148,6 +154,8 @@ CONFIG.perDirectory = {
             "telemetry_report_rejected_edits",
             "telemetry_settings_content",
             "telemetry_string",
+            "global_llm_token",
+            "needs_llm_token_refresh",
         ],
         bannedStructs=[
             "ActionLogTelemetry",
@@ -161,6 +169,7 @@ CONFIG.perDirectory = {
             "TelemetrySource",
             "TelemetryState",
             "ZedAiOnboarding",
+            "NeedsLlmTokenRefresh",
         ],
         bannedArguments=[
             "enable_telemetry",
@@ -247,6 +256,7 @@ CONFIG.perDirectory = {
             "ResetTrialEndUpsell",
         ],
         bannedFunctions=[
+            "dismiss_ai_onboarding",
             "emit_configuration_error_telemetry_if_needed",
             "emit_load_error_telemetry",
             "emit_thread_error_telemetry",
@@ -254,9 +264,11 @@ CONFIG.perDirectory = {
             "fire_started_telemetry",
             "handle_feedback_click",
             "render_feedback_feedback_editor",
+            "render_new_user_onboarding",
             "render_onboarding",
             "render_trial_end_upsell",
             "render_zed_plan_info",
+            "should_render_new_user_onboarding",
             "should_render_onboarding",
             "should_render_trial_end_upsell",
             "submit_feedback_message",
@@ -265,8 +277,11 @@ CONFIG.perDirectory = {
         ],
         bannedArguments=[
             "enable_feedback",
+            "is_new_install",
             "last_configuration_error_telemetry",
             "last_token_limit_telemetry",
+            "new_user_onboarding",
+            "new_user_onboarding_upsell_dismissed",
             "on_boarding_upsell_dismissed",
             "onboarding",
             "thread_feedback",
@@ -275,6 +290,8 @@ CONFIG.perDirectory = {
             "anthropic_event_type",
             "anthropic_reporter",
             "comments_editor",
+            "enable_thread_feedback",
+            "is_new_install",
             "is_signed_in",
             "onboarding",
         ],
@@ -304,6 +321,21 @@ CONFIG.perDirectory = {
             ("zed", "zedless")
         ]
     ),
+    "crates/client/": PerDirectoryConfig(
+        bannedFunctions=[
+            "acquire_llm_token",
+            "add_message_to_client_handler",
+            "clear_and_refresh_llm_token",
+            "connect_to_cloud",
+            "handle_message_to_client",
+            "refresh_llm_token",
+        ],
+        bannedArguments=[
+            "_handle_sign_out",
+            "_maintain_current_user",
+            "system_id",
+        ]
+    ),
     "crates/command_palette/": PerDirectoryConfig(
         bannedLocals=[
             "is_zed_link",
@@ -311,6 +343,7 @@ CONFIG.perDirectory = {
     ),
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
+            "_fetch_experiments_task",
             "copilot",
             "llm_token",
             "mercury",
@@ -323,6 +356,7 @@ CONFIG.perDirectory = {
             "ZedPredictModal",
         ],
         bannedLocals=[
+            "fetch_experiments_task",
             "llm_token",
             "token",
         ],
@@ -337,6 +371,7 @@ CONFIG.perDirectory = {
             "has_mercury_api_token",
             "has_sweep_api_token",
             "is_prediction_rated",
+            "mercury_has_payment_required_error",
             "rate_prediction",
             "refresh_available_experiments",
             "start_copilot_for_project",
@@ -353,6 +388,8 @@ CONFIG.perDirectory = {
             "copilot",
             "copilot_config",
             "mercury_api_token_task",
+            "mercury_has_error",
+            "mercury_payment_required",
             "sweep_api_token_task",
         ],
         bannedEnumVariants=[
@@ -437,6 +474,8 @@ CONFIG.perDirectory = {
             "npm_command_env",
             "path_with_node_binary_prepended",
             "proxy_argument",
+            "test_build_npm_command_args_inserts_prefix_before_subcommand",
+            "test_build_npm_command_args_keeps_entrypoint_before_prefix",
             "test_proxy_argument_map_localhost_proxy",
         ]
     ),
@@ -466,6 +505,16 @@ CONFIG.perDirectory = {
     "crates/remote_connection/": PerDirectoryConfig(
         bannedFunctions = [
             "get_download_url",
+        ]
+    ),
+    "crates/remote_server/": PerDirectoryConfig(
+        bannedFunctions=[
+            "crash_server",
+            "handle_crash_files_requests",
+        ],
+        bannedLocals=[
+            "crash_handler",
+            "should_install_crash_handler",
         ]
     ),
     "crates/title_bar/": PerDirectoryConfig(
@@ -515,22 +564,29 @@ CONFIG.perDirectory = {
     ),
     "crates/zed/": PerDirectoryConfig(
         bannedArguments=[
+            "is_new_install",
             "join_channel",
             "open_channel_notes",
         ],
         bannedFunctions=[
             "authenticate",
+            "crash_server",
             "installation_id",
             "parse_zed_link",
-            "system_id",
             "register_backward_compatible_actions",
+            "set_gpu_info",
+            "set_user_info",
+            "system_id",
         ],
         bannedLocals=[
             "channels_panel",
             "copilot_chat_configuration",
+            "crash_handler",
             "installation_id",
+            "is_new_install",
             "is_zed_link",
             "notification_panel",
+            "should_install_crash_handler",
             "system_specs",
             "telemetry_log_item",
         ],
@@ -545,6 +601,10 @@ CONFIG.perDirectory = {
         ],
         bannedActions=[
             "RestoreBanner",
+        ],
+        bannedStructs=[
+            "CrashHandler",
+            "RefreshLlmTokenListener",
         ]
     )
 }

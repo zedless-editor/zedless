@@ -691,6 +691,7 @@ with chdir("source"):
                 f"{function}($$$);",
                 f"$_::{function}($$$);",
                 f"$_.$_().{function}().$_($$$);",
+                f"self.{function}($$$).await.log_err();",
                 f"let $$$ = $_.{function}();",
                 f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
                 f"$_.update(cx, |$$$| $_.{function}($$$))?;",
@@ -779,6 +780,9 @@ with chdir("source"):
             rules.extend(deleteDeclarations("struct_item", struct, target=target))
             rules.extend(deleteDeclarations("impl_item", struct, identifierField="type", target=target))
             rules.extend(removeSymbolImports(struct))
+            rules.extend(deletePatterns(target, "rust", [
+                f"{struct}::register($$$);",
+            ]))
 
         for arg in cfg.bannedArguments:
             rules.extend(removeFieldsInDeclarations(arg, target=target))
@@ -804,7 +808,8 @@ with chdir("source"):
             rules.extend(nullifyIfStatement(target, [
                 local,
                 f"{local} && $$$",
-                f"$$$ && {local}"
+                f"$$$ && {local}",
+                f"!{local}"
             ]))
             rules.extend(removeMethodCall("when", {
                 "kind": "identifier",
@@ -834,6 +839,16 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
             ], "false"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "binary_expression"
+            } | match.any(
+                {
+                    "pattern": f"$OTHER || {local}"
+                },
+                {
+                    "pattern": f"{local} || $OTHER"
+                },
+            ), "$OTHER"))
             rules.extend(removeElementFromDelimitedList(target, {
                 "kind": "identifier",
                 "pattern": local,
@@ -1106,7 +1121,8 @@ with chdir("source"):
     ], "()", deleteStatements=True))
 
     rules.extend(deletePatterns("crates/", "rust", [
-        "let (telemetry, is_via_ssh) = { $$$ };"
+        "let (telemetry, is_via_ssh) = { $$$ };",
+        "use $$$::telemetry::{$$$};",
     ]))
 
     rules.extend(removeMethodCall("child", match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
@@ -1129,30 +1145,9 @@ with chdir("source"):
         "template": "{\n$$$PREV\nif binary_exists_on_server { Ok(dst_path) } else { Err(anyhow::anyhow!(\"zedless: no remote server binary found on target\")) }\n}"
     }))
 
-    # For whatever reason, this function is implemented in the anthropic crate, which is banned.
-    rules.extend(mkRule("crates/", "rust", {
-        "kind": "source_file",
-        "pattern": "$ALL",
-        "has": {
-            "kind": "call_expression",
-            "pattern": "parse_prompt_too_long($$$)",
-            "stopBy": "end"
-        },
-        "not": {
-            "has": {
-                "kind": "function_item",
-                "has": {
-                    "field": "name",
-                    "pattern": "parse_prompt_too_long"
-                }
-            }
-        }
-    },
-    "$ALL\nfn parse_prompt_too_long(message: &str) -> Option<u64> {\n"
-    "    message.strip_prefix(\"prompt is too long: \")?\n"
-    "        .split_once(\" tokens\")?\n"
-    "        .0.parse().ok()\n}\n"
-    ))
+    rules.extend(deletePatterns("crates/", "rust", [
+        "if cx.is_staff() { $$$ }"
+    ]))
 
     # Cleanup
     rules.extend(deletePatterns("crates/", "rust", [
@@ -1166,6 +1161,14 @@ with chdir("source"):
             }
         }
     }, ""))
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "binary_expression",
+        "pattern": "$_ && $_",
+        "has": {
+            "kind": "boolean_literal",
+            "regex": "^false$"
+        }
+    }, "false"))
 
     runRules(rules)
 
