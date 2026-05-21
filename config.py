@@ -117,6 +117,7 @@ CONFIG.bannedLanguageModelProviders = [
     LanguageModelProvider("LmStudio", "lmstudio"),
     LanguageModelProvider("Mistral", "mistral"),
     LanguageModelProvider("OpenAi", "openai"),
+    LanguageModelProvider("OpenAiSubscribed", "openai_subscribed", lmProviderStructName="OpenAiSubscribedProvider"),
     LanguageModelProvider("OpenCode", "opencode"),
     LanguageModelProvider("OpenRouter", "open_router"),
     LanguageModelProvider("Vercel", "vercel"),
