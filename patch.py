@@ -206,6 +206,26 @@ def disableBoolFunction(target, name):
         body
     )
 
+def disableFutureAnyhowFunction(target, name, errorMessage=None):
+    if not errorMessage:
+        errorMessage = f"function {name} has been disabled"
+    body = f"{{\n    async move {{ Err(anyhow::anyhow!(\"zedless: {errorMessage}\")) }}\n}}"
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name, returnType={
+            "kind": "bounded_type",
+            "has": {
+                "kind": "generic_type",
+                "has": {
+                    "field": "type",
+                    "regex": "^Result$"
+                },
+                "stopBy": "end"
+            }
+        }),
+        body
+    )
+
 def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
     yield from editAstAdvanced(
@@ -1011,6 +1031,7 @@ with chdir("source"):
             rules.extend(disableAnyhowFunction(target, function))
             rules.extend(disableOptionFunction(target, function))
             rules.extend(disableBoolFunction(target, function))
+            rules.extend(disableFutureAnyhowFunction(target, function))
 
         for (original, replacement) in cfg.stringReplacements:
             rules.extend(mkRule(target, "rust", {
