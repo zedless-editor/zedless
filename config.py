@@ -81,6 +81,7 @@ CONFIG.bannedCrates = [
     "telemetry",
     "telemetry_events",
     "vercel",
+    "web_search_providers",
     "x_ai",
 ]
 

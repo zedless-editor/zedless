@@ -1158,10 +1158,6 @@ with chdir("source"):
 
     rules.extend(removeMethodCall("child", match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
 
-    rules.extend(deletePatterns("crates/web_search_providers/", "rust", [
-        "register_zed_web_search_provider($$$)"
-    ]))
-
     # The `None` here is an Option<ActionLogTelemetry>, which was removed
     rules.extend(editAstAdvanced("crates/agent_ui/", "rust", [
         {
