@@ -513,6 +513,16 @@ with chdir("source"):
                         del data["dependencies"][crate]
                     if "dev-dependencies" in data and crate in data["dev-dependencies"]:
                         del data["dev-dependencies"][crate]
+                if "features" in data:
+                    for feature in data["features"]:
+                        data["features"][feature] = filter(
+                            lambda dep: all(
+                                [
+                                    not dep.startswith(f"{crate}/")
+                                    for crate in CONFIG.bannedCrates
+                                ],
+                            ), data["features"][feature]
+                        )
                 write(data)
 
     for (crate, mod) in CONFIG.bannedModules:
