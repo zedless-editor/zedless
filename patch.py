@@ -954,7 +954,24 @@ with chdir("source"):
                         }
                     }
                 }
-            }, target="crates/agent_ui/", matchRecursive=False))
+            }, target=target, matchRecursive=False))
+            rules.extend(removeMethodCall("on_action", {
+                "kind": "closure_expression",
+                "has": {
+                    "kind": "closure_parameters",
+                    "has": {
+                        "kind": "parameter",
+                        "has": {
+                            "field": "type",
+                            "has": {
+                                "kind": "type_identifier",
+                                "regex": f"^{action}$",
+                                "stopBy": "end"
+                            }
+                        }
+                    }
+                }
+            }, target=target, matchRecursive=True))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
                     "any": [
