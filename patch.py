@@ -846,6 +846,10 @@ with chdir("source"):
                 }),
                 target=target
             ))
+            rules.extend(nullifyExpressions([
+                f"self.{arg}.is_empty()",
+                f"self.{arg}.is_none()",
+            ], "true", deleteStatements=False))
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
