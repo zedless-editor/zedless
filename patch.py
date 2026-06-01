@@ -1194,6 +1194,18 @@ with chdir("source"):
         "if cx.is_staff() { $$$ }"
     ]))
 
+    rules.extend(mkRule("crates/edit_prediction/", "rust", {
+        "kind": "block",
+        "inside": {
+            "kind": "else_clause"
+        },
+        "has": {
+            "kind": "call_expression",
+            "pattern": "EditPredictionStore::send_v3_request($$$)",
+            "stopBy": "end"
+        }
+    }, "{ None }"))
+
     # Cleanup
     rules.extend(deletePatterns("crates/", "rust", [
         "if $$$ {} else {}"
