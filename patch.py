@@ -269,7 +269,8 @@ def nullifyExpressions(patterns, empty, deleteStatements=False):
             { "pattern": pattern }
             for pattern in patterns
         ],
-        empty
+        empty,
+        mode="any"
     )
 
 def removeFieldsInDeclarations(identifier, target="crates/"):
