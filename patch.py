@@ -355,7 +355,8 @@ def removeExprArguments(string, target="crates/"):
                 "inside": {
                     "any": [
                         { "kind": "arguments" },
-                        { "kind": "field_initializer_list" }
+                        { "kind": "field_initializer_list" },
+                        { "kind": "struct_pattern" },
                     ]
                 }
             },
@@ -382,6 +383,13 @@ def removeExprArguments(string, target="crates/"):
                                     "regex": f"^{string}$"
                                 },
                             ]
+                        }
+                    },
+                    {
+                        "kind": "field_pattern",
+                        "has": {
+                            "kind": "shorthand_field_identifier",
+                            "regex": f"^{string}$"
                         }
                     }
                 ]
