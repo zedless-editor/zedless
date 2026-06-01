@@ -326,10 +326,13 @@ CONFIG.perDirectory = {
         bannedFunctions=[
             "acquire_llm_token",
             "add_message_to_client_handler",
+            "authenticated_llm_request",
+            "cached_llm_token",
             "clear_and_refresh_llm_token",
             "connect_to_cloud",
             "handle_message_to_client",
             "refresh_llm_token",
+            "set_current_organization",
         ],
         bannedArguments=[
             "_handle_sign_out",
