@@ -338,6 +338,11 @@ CONFIG.perDirectory = {
             "_handle_sign_out",
             "_maintain_current_user",
             "system_id",
+        ],
+        bannedActions=[
+            "SignIn",
+            "SignOut",
+            "Reconnect",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
