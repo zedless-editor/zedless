@@ -345,7 +345,10 @@ CONFIG.perDirectory = {
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
             "_fetch_experiments_task",
+            "can_collect_data",
+            "capture_data",
             "copilot",
+            "legacy_data_collection_enabled",
             "llm_token",
             "mercury",
             "onboarding",
@@ -357,8 +360,13 @@ CONFIG.perDirectory = {
             "ZedPredictModal",
         ],
         bannedLocals=[
+            "can_collect_data",
+            "capture_data",
             "fetch_experiments_task",
+            "is_cloud",
+            "legacy_data_collection_enabled",
             "llm_token",
+            "raw_config",
             "token",
         ],
         bannedActions=[
@@ -368,14 +376,20 @@ CONFIG.perDirectory = {
             "SignOut",
         ],
         bannedFunctions=[
+            "can_toggle_data_collection",
             "copilot_for_project",
+            "data_collection_state",
             "has_mercury_api_token",
             "has_sweep_api_token",
+            "is_data_collection_allowed_by_organization",
+            "is_data_collection_enabled",
             "is_prediction_rated",
+            "load_legacy_data_collection_enabled",
             "mercury_has_payment_required_error",
             "rate_prediction",
             "refresh_available_experiments",
             "start_copilot_for_project",
+            "toggle_data_collection",
         ],
         bannedEnumVariants=[
             "Copilot",
@@ -606,6 +620,11 @@ CONFIG.perDirectory = {
         bannedStructs=[
             "CrashHandler",
             "RefreshLlmTokenListener",
+        ]
+    ),
+    "crates/zeta_prompt/": PerDirectoryConfig(
+        bannedArguments=[
+            "can_collect_data",
         ]
     )
 }
