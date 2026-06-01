@@ -881,11 +881,16 @@ with chdir("source"):
                 f"{local} = $$$;",
                 f"{local}.$_($$$).await?;",
                 f"$_.{local} = {local};",
+                f"if {local} && let $$$ = $$$ {{ $$$ }}",
             ]))
             rules.extend(mkRule(target, "rust", {
                 "kind": "if_expression",
                 "pattern": f"if {local} {{ $$$ }} else if $$$COND {{ $$$THEN }} else {{ $ELSE }}"
             }, "if $$$COND {\n    $$$THEN\n} else {\n    $ELSE\n}"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "pattern": f"if $$$COND {{ $$$THEN }} else if let Some($_) = &{local} {{ $$$ }} else {{ $$$ELSE }}"
+            }, "if $$$COND {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
             ], "false"))
@@ -915,6 +920,11 @@ with chdir("source"):
                 "template": "let ($A, $B) = if $$$COND {\n    ($ATHEN, $BTHEN)\n} else {\n    ($AELSE, $BELSE)\n};"
             }))
             rules.extend(mkRule(target, "rust", {
+                "pattern": f"let $VAR = if {local} {{ $$$ }} else {{ $ELSE }};"
+            }, {
+                "template": "let $VAR = $ELSE;"
+            }))
+            rules.extend(mkRule(target, "rust", {
                 "pattern": f"add_panel_when_ready({local}, $$$)"
             }, {
                 "template": "",
@@ -922,6 +932,10 @@ with chdir("source"):
                     "regex": "^,$"
                 }
             }))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "call_expression",
+                "pattern": f"{local}.as_ref().map($$$).or($$$OR).unwrap_or_default()"
+            }, "($$$OR).unwrap_or_default()"))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
