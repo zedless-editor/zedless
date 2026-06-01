@@ -543,6 +543,11 @@ with chdir("source"):
                                 ],
                             ), data["features"][feature]
                         )
+                if data["package"]["name"] == "zed":
+                    data["package"]["default-run"] = "zedless"
+                    for (i, bin) in enumerate(data["bin"]):
+                        if bin["name"] == "zed":
+                            data["bin"][i]["name"] = "zedless"
                 write(data)
 
     for (crate, mod) in CONFIG.bannedModules:
