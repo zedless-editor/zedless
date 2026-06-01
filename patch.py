@@ -1210,6 +1210,28 @@ with chdir("source"):
             "regex": "^false$"
         }
     }, "false"))
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "expression_statement",
+        "pattern": "cx.background_spawn($$$).detach();",
+        "has": {
+            "kind": "call_expression",
+            "has": {
+                "kind": "arguments",
+                "has": {
+                    "kind": "block",
+                    "not": {
+                        "has": {
+                            "not": {
+                                "kind": "let_declaration"
+                            },
+                            "pattern": "$_"
+                        }
+                    }
+                }
+            },
+            "stopBy": "end"
+        }
+    }, ""))
 
     runRules(rules)
 
