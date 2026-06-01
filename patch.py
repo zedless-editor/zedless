@@ -740,6 +740,8 @@ with chdir("source"):
                 f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
                 f"$_.update(cx, |$$$| $_.{function}($$$))?;",
                 f"if let $_ = cx.update({function}).await.ok() {{ $$$ }}",
+                f"Self::{function}($$$).await;",
+                f"async move {{ Self::{function}($$$).await }}",
             ]))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
