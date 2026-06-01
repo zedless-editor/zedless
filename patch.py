@@ -206,6 +206,26 @@ def disableBoolFunction(target, name):
         body
     )
 
+def disableFutureAnyhowFunction(target, name, errorMessage=None):
+    if not errorMessage:
+        errorMessage = f"function {name} has been disabled"
+    body = f"{{\n    async move {{ Err(anyhow::anyhow!(\"zedless: {errorMessage}\")) }}\n}}"
+    yield from replaceFunctionBody(
+        target,
+        match.rust.functionDefinition(name, returnType={
+            "kind": "bounded_type",
+            "has": {
+                "kind": "generic_type",
+                "has": {
+                    "field": "type",
+                    "regex": "^Result$"
+                },
+                "stopBy": "end"
+            }
+        }),
+        body
+    )
+
 def removeSymbolImports(symbol, target="crates/"):
     print("remove imports for symbol", symbol)
     yield from editAstAdvanced(
@@ -249,7 +269,8 @@ def nullifyExpressions(patterns, empty, deleteStatements=False):
             { "pattern": pattern }
             for pattern in patterns
         ],
-        empty
+        empty,
+        mode="any"
     )
 
 def removeFieldsInDeclarations(identifier, target="crates/"):
@@ -335,7 +356,8 @@ def removeExprArguments(string, target="crates/"):
                 "inside": {
                     "any": [
                         { "kind": "arguments" },
-                        { "kind": "field_initializer_list" }
+                        { "kind": "field_initializer_list" },
+                        { "kind": "struct_pattern" },
                     ]
                 }
             },
@@ -362,6 +384,13 @@ def removeExprArguments(string, target="crates/"):
                                     "regex": f"^{string}$"
                                 },
                             ]
+                        }
+                    },
+                    {
+                        "kind": "field_pattern",
+                        "has": {
+                            "kind": "shorthand_field_identifier",
+                            "regex": f"^{string}$"
                         }
                     }
                 ]
@@ -513,6 +542,21 @@ with chdir("source"):
                         del data["dependencies"][crate]
                     if "dev-dependencies" in data and crate in data["dev-dependencies"]:
                         del data["dev-dependencies"][crate]
+                if "features" in data:
+                    for feature in data["features"]:
+                        data["features"][feature] = filter(
+                            lambda dep: all(
+                                [
+                                    not dep.startswith(f"{crate}/")
+                                    for crate in CONFIG.bannedCrates
+                                ],
+                            ), data["features"][feature]
+                        )
+                if data["package"]["name"] == "zed":
+                    data["package"]["default-run"] = "zedless"
+                    for (i, bin) in enumerate(data["bin"]):
+                        if bin["name"] == "zed":
+                            data["bin"][i]["name"] = "zedless"
                 write(data)
 
     for (crate, mod) in CONFIG.bannedModules:
@@ -696,6 +740,8 @@ with chdir("source"):
                 f"$_.update(cx, |$$$| {{ $_.{function}($$$) }})?;",
                 f"$_.update(cx, |$$$| $_.{function}($$$))?;",
                 f"if let $_ = cx.update({function}).await.ok() {{ $$$ }}",
+                f"Self::{function}($$$).await;",
+                f"async move {{ Self::{function}($$$).await }}",
             ]))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
@@ -802,6 +848,10 @@ with chdir("source"):
                 }),
                 target=target
             ))
+            rules.extend(nullifyExpressions([
+                f"self.{arg}.is_empty()",
+                f"self.{arg}.is_none()",
+            ], "true", deleteStatements=False))
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
@@ -831,11 +881,16 @@ with chdir("source"):
                 f"{local} = $$$;",
                 f"{local}.$_($$$).await?;",
                 f"$_.{local} = {local};",
+                f"if {local} && let $$$ = $$$ {{ $$$ }}",
             ]))
             rules.extend(mkRule(target, "rust", {
                 "kind": "if_expression",
                 "pattern": f"if {local} {{ $$$ }} else if $$$COND {{ $$$THEN }} else {{ $ELSE }}"
             }, "if $$$COND {\n    $$$THEN\n} else {\n    $ELSE\n}"))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "if_expression",
+                "pattern": f"if $$$COND {{ $$$THEN }} else if let Some($_) = &{local} {{ $$$ }} else {{ $$$ELSE }}"
+            }, "if $$$COND {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
             ], "false"))
@@ -865,6 +920,11 @@ with chdir("source"):
                 "template": "let ($A, $B) = if $$$COND {\n    ($ATHEN, $BTHEN)\n} else {\n    ($AELSE, $BELSE)\n};"
             }))
             rules.extend(mkRule(target, "rust", {
+                "pattern": f"let $VAR = if {local} {{ $$$ }} else {{ $ELSE }};"
+            }, {
+                "template": "let $VAR = $ELSE;"
+            }))
+            rules.extend(mkRule(target, "rust", {
                 "pattern": f"add_panel_when_ready({local}, $$$)"
             }, {
                 "template": "",
@@ -872,6 +932,10 @@ with chdir("source"):
                     "regex": "^,$"
                 }
             }))
+            rules.extend(mkRule(target, "rust", {
+                "kind": "call_expression",
+                "pattern": f"{local}.as_ref().map($$$).or($$$OR).unwrap_or_default()"
+            }, "($$$OR).unwrap_or_default()"))
 
         for action in cfg.bannedActions:
             rules.extend(removeMethodCall("register_action", {
@@ -890,7 +954,24 @@ with chdir("source"):
                         }
                     }
                 }
-            }, target="crates/agent_ui/", matchRecursive=False))
+            }, target=target, matchRecursive=False))
+            rules.extend(removeMethodCall("on_action", {
+                "kind": "closure_expression",
+                "has": {
+                    "kind": "closure_parameters",
+                    "has": {
+                        "kind": "parameter",
+                        "has": {
+                            "field": "type",
+                            "has": {
+                                "kind": "type_identifier",
+                                "regex": f"^{action}$",
+                                "stopBy": "end"
+                            }
+                        }
+                    }
+                }
+            }, target=target, matchRecursive=True))
             rules.extend(deletePatternsAdvanced(target, "rust", "expression_statement", [
                 {
                     "any": [
@@ -1001,6 +1082,7 @@ with chdir("source"):
             rules.extend(disableAnyhowFunction(target, function))
             rules.extend(disableOptionFunction(target, function))
             rules.extend(disableBoolFunction(target, function))
+            rules.extend(disableFutureAnyhowFunction(target, function))
 
         for (original, replacement) in cfg.stringReplacements:
             rules.extend(mkRule(target, "rust", {
@@ -1127,10 +1209,6 @@ with chdir("source"):
 
     rules.extend(removeMethodCall("child", match.rust.functionCall("render_telemetry_section"), target="crates/onboarding/"))
 
-    rules.extend(deletePatterns("crates/web_search_providers/", "rust", [
-        "register_zed_web_search_provider($$$)"
-    ]))
-
     # The `None` here is an Option<ActionLogTelemetry>, which was removed
     rules.extend(editAstAdvanced("crates/agent_ui/", "rust", [
         {
@@ -1148,6 +1226,18 @@ with chdir("source"):
     rules.extend(deletePatterns("crates/", "rust", [
         "if cx.is_staff() { $$$ }"
     ]))
+
+    rules.extend(mkRule("crates/edit_prediction/", "rust", {
+        "kind": "block",
+        "inside": {
+            "kind": "else_clause"
+        },
+        "has": {
+            "kind": "call_expression",
+            "pattern": "EditPredictionStore::send_v3_request($$$)",
+            "stopBy": "end"
+        }
+    }, "{ None }"))
 
     # Cleanup
     rules.extend(deletePatterns("crates/", "rust", [
@@ -1169,6 +1259,28 @@ with chdir("source"):
             "regex": "^false$"
         }
     }, "false"))
+    rules.extend(mkRule("crates/", "rust", {
+        "kind": "expression_statement",
+        "pattern": "cx.background_spawn($$$).detach();",
+        "has": {
+            "kind": "call_expression",
+            "has": {
+                "kind": "arguments",
+                "has": {
+                    "kind": "block",
+                    "not": {
+                        "has": {
+                            "not": {
+                                "kind": "let_declaration"
+                            },
+                            "pattern": "$_"
+                        }
+                    }
+                }
+            },
+            "stopBy": "end"
+        }
+    }, ""))
 
     runRules(rules)
 

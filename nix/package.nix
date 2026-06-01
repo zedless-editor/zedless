@@ -65,7 +65,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     rm -r $out/git/*/candle-book/
   '';
 
-  cargoHash = "sha256-T9YbDY7vram1nFRSG/9Qi1076HaCacHeNN88P0qmKGQ=";
+  cargoHash = "sha256-XHkQ9jrOsDbpt+zC96QrBqvCzEeuzC/WY4cjRdYVr9Q=";
 
   nativeBuildInputs = [
     cmake
@@ -142,7 +142,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     runHook preInstall
 
     release_target="target/${stdenv.hostPlatform.rust.cargoShortTarget}/release"
-    install -Dm755 $release_target/zed $out/libexec/zedless-editor
+    install -Dm755 $release_target/zedless $out/libexec/zedless-editor
     install -Dm755 $release_target/cli $out/bin/zedless
 
     install -Dm644 $src/crates/zed/resources/app-icon@2x.png $out/share/icons/hicolor/1024x1024@2x/apps/zedless.png

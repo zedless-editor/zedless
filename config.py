@@ -81,6 +81,7 @@ CONFIG.bannedCrates = [
     "telemetry",
     "telemetry_events",
     "vercel",
+    "web_search_providers",
     "x_ai",
 ]
 
@@ -325,15 +326,23 @@ CONFIG.perDirectory = {
         bannedFunctions=[
             "acquire_llm_token",
             "add_message_to_client_handler",
+            "authenticated_llm_request",
+            "cached_llm_token",
             "clear_and_refresh_llm_token",
             "connect_to_cloud",
             "handle_message_to_client",
             "refresh_llm_token",
+            "set_current_organization",
         ],
         bannedArguments=[
             "_handle_sign_out",
             "_maintain_current_user",
             "system_id",
+        ],
+        bannedActions=[
+            "SignIn",
+            "SignOut",
+            "Reconnect",
         ]
     ),
     "crates/command_palette/": PerDirectoryConfig(
@@ -344,7 +353,10 @@ CONFIG.perDirectory = {
     "crates/edit_prediction/": PerDirectoryConfig(
         bannedArguments=[
             "_fetch_experiments_task",
+            "can_collect_data",
+            "capture_data",
             "copilot",
+            "legacy_data_collection_enabled",
             "llm_token",
             "mercury",
             "onboarding",
@@ -356,8 +368,13 @@ CONFIG.perDirectory = {
             "ZedPredictModal",
         ],
         bannedLocals=[
+            "can_collect_data",
+            "capture_data",
             "fetch_experiments_task",
+            "is_cloud",
+            "legacy_data_collection_enabled",
             "llm_token",
+            "raw_config",
             "token",
         ],
         bannedActions=[
@@ -367,14 +384,26 @@ CONFIG.perDirectory = {
             "SignOut",
         ],
         bannedFunctions=[
+            "can_toggle_data_collection",
             "copilot_for_project",
+            "data_collection_state",
+            "edit_prediction_accepted",
+            "handle_rejected_predictions",
             "has_mercury_api_token",
             "has_sweep_api_token",
+            "is_data_collection_allowed_by_organization",
+            "is_data_collection_enabled",
             "is_prediction_rated",
+            "load_legacy_data_collection_enabled",
             "mercury_has_payment_required_error",
             "rate_prediction",
             "refresh_available_experiments",
+            "run_settled_predictions_worker",
+            "send_api_request",
+            "send_raw_llm_request",
+            "send_v3_request",
             "start_copilot_for_project",
+            "toggle_data_collection",
         ],
         bannedEnumVariants=[
             "Copilot",
@@ -605,6 +634,11 @@ CONFIG.perDirectory = {
         bannedStructs=[
             "CrashHandler",
             "RefreshLlmTokenListener",
+        ]
+    ),
+    "crates/zeta_prompt/": PerDirectoryConfig(
+        bannedArguments=[
+            "can_collect_data",
         ]
     )
 }
