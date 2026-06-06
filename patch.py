@@ -259,11 +259,11 @@ def removeSymbolImports(symbol, target="crates/"):
         f"pub use $CRATE::{symbol};",
     ], selector="use_declaration")
 
-def nullifyExpressions(patterns, empty, deleteStatements=False):
+def nullifyExpressions(patterns, empty, deleteStatements=False, target="crates/"):
     if deleteStatements:
-        yield from deletePatterns("crates/", "rust", [f"{p};" for p in patterns])
+        yield from deletePatterns(target, "rust", [f"{p};" for p in patterns])
     yield from editAstAdvanced(
-        "crates/",
+        target,
         "rust",
         [
             { "pattern": pattern }
@@ -800,7 +800,7 @@ with chdir("source"):
             }, "None"))
             rules.extend(nullifyExpressions([
                 f"{function}($$$).is_some()"
-            ], "false"))
+            ], "false", target=target))
             rules.extend(removeElementFromDelimitedList(target, {
                 "kind": "call_expression",
                 "any": [
@@ -851,7 +851,7 @@ with chdir("source"):
             rules.extend(nullifyExpressions([
                 f"self.{arg}.is_empty()",
                 f"self.{arg}.is_none()",
-            ], "true", deleteStatements=False))
+            ], "true", deleteStatements=False, target=target))
 
         for local in cfg.bannedLocals:
             rules.extend(deleteDeclarations("let_declaration", local, "pattern", target=target))
@@ -893,7 +893,7 @@ with chdir("source"):
             }, "if $$$COND {\n    $$$THEN\n} else {\n    $$$ELSE\n}"))
             rules.extend(nullifyExpressions([
                 f"{local}.is_some()"
-            ], "false"))
+            ], "false", target=target))
             rules.extend(mkRule(target, "rust", {
                 "kind": "binary_expression"
             } | match.any(
